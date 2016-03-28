@@ -10,7 +10,7 @@ impl From<fmt::Error> for Error {
     }
 }
 
-pub trait Write {
+pub trait WriteHtml {
     fn write_event(&mut self, event: Event) -> Result<(), Error>;
     fn write_events<'a, I>(&mut self, events: I) -> Result<(), Error>
         where I: IntoIterator<Item = Event<'a>>
@@ -22,7 +22,7 @@ pub trait Write {
     }
 }
 
-impl<T: fmt::Write> Write for T {
+impl<T: fmt::Write> WriteHtml for T {
     fn write_event(&mut self, event: Event) -> Result<(), Error> {
         try!(write!(self, "{}", event));
         Ok(())

@@ -7,5 +7,5 @@ mod read;
 
 pub use event::Event;
 pub use attribute::Attribute;
-pub use write::Write;
+pub use write::WriteHtml;
 pub use read::ReadHtml;
