@@ -1,7 +1,7 @@
 use std::fmt;
 use std::borrow::Cow;
 
-static EMPTY_ATTRS: &'static [Attribute<'static>] = &[];
+pub type AttributeSet<'a> = Cow<'a, [Attribute<'a>]>;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Attribute<'a> {
@@ -9,10 +9,8 @@ pub struct Attribute<'a> {
     pub value: Cow<'a, str>,
 }
 
-impl<'a> Attribute<'a> {
-    pub fn none() -> Cow<'a, [Attribute<'a>]> {
-        Cow::Borrowed(EMPTY_ATTRS)
-    }
+pub fn empty_set<'a>() -> AttributeSet<'a> {
+    Cow::Borrowed(&[])
 }
 
 impl<'a> fmt::Display for Attribute<'a> {

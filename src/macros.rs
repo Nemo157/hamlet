@@ -14,7 +14,7 @@ macro_rules! start_tag {
     ($name:expr) => {
         ($crate::Event::StartTag {
             name: ::std::borrow::Cow::from($name),
-            attrs: $crate::Attribute::none(),
+            attrs: $crate::attribute::empty_set(),
         })
     };
     ($name:expr, $($aname:ident = $aval:expr),+) => {
@@ -30,7 +30,7 @@ macro_rules! closed_tag {
     ($name:expr) => {
         ($crate::Event::ClosedTag {
             name: ::std::borrow::Cow::from($name),
-            attrs: $crate::Attribute::none(),
+            attrs: $crate::attribute::empty_set(),
         })
     };
     ($name:expr, $($aname:ident = $aval:expr),+) => {

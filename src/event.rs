@@ -1,20 +1,20 @@
 use std::fmt;
 use std::borrow::Cow;
 
-use Attribute;
+use attribute::AttributeSet;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Event<'a> {
     StartTag {
         name: Cow<'a, str>,
-        attrs: Cow<'a, [Attribute<'a>]>,
+        attrs: AttributeSet<'a>,
     },
     EndTag {
         name: Cow<'a, str>,
     },
     ClosedTag {
         name: Cow<'a, str>,
-        attrs: Cow<'a, [Attribute<'a>]>,
+        attrs: AttributeSet<'a>,
     },
     Text(Cow<'a, str>),
     RawHtml(Cow<'a, str>),

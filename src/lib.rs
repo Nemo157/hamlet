@@ -1,7 +1,7 @@
 #[macro_use]
 pub mod macros;
 mod event;
-mod attribute;
+pub mod attribute;
 mod stream;
 
 pub use event::Event;
