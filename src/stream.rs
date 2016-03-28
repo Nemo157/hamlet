@@ -3,14 +3,20 @@ use std::io::Write;
 use std::marker::PhantomData;
 use Event;
 
-pub struct HtmlStreamer<'a, I> where I: Iterator<Item=Event<'a>> + 'a {
+pub struct HtmlStreamer<'a, I>
+    where I: Iterator<Item = Event<'a>> + 'a
+{
     events: I,
     buffer: Vec<u8>,
     ev_life: PhantomData<Event<'a>>,
 }
 
-impl<'a, I> HtmlStreamer<'a, I> where I: Iterator<Item=Event<'a>> {
-    pub fn new<II>(events: II) -> HtmlStreamer<'a, I> where II: IntoIterator<IntoIter=I, Item=Event<'a>> {
+impl<'a, I> HtmlStreamer<'a, I>
+    where I: Iterator<Item = Event<'a>>
+{
+    pub fn new<II>(events: II) -> HtmlStreamer<'a, I>
+        where II: IntoIterator<IntoIter = I, Item = Event<'a>>
+    {
         HtmlStreamer {
             events: events.into_iter(),
             buffer: Vec::new(),
@@ -19,14 +25,16 @@ impl<'a, I> HtmlStreamer<'a, I> where I: Iterator<Item=Event<'a>> {
     }
 }
 
-impl<'a, I> io::Read for HtmlStreamer<'a, I> where I: Iterator<Item=Event<'a>> {
+impl<'a, I> io::Read for HtmlStreamer<'a, I>
+    where I: Iterator<Item = Event<'a>>
+{
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         while self.buffer.len() == 0 {
             if let Some(event) = self.events.next() {
                 // Possible to do better?
                 try!(write!(&mut self.buffer, "{}", event));
             } else {
-                return Ok(0)
+                return Ok(0);
             }
         }
         let curlen = self.buffer.len();

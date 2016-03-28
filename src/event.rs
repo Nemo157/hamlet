@@ -37,16 +37,12 @@ impl<'a> fmt::Display for Event<'a> {
                 }
                 write!(f, " />")
             }
-            Event::EndTag { ref name } => {
-                write!(f, "</{}>", name)
-            }
+            Event::EndTag { ref name } => write!(f, "</{}>", name),
             Event::Text(ref text) => {
                 // TODO: Escaping
                 write!(f, "{}", text)
             }
-            Event::RawHtml(ref html) => {
-                write!(f, "{}", html)
-            }
+            Event::RawHtml(ref html) => write!(f, "{}", html),
         }
     }
 }
