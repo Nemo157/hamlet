@@ -2,10 +2,8 @@
 pub mod macros;
 mod event;
 mod attribute;
-mod write;
-mod read;
+mod stream;
 
 pub use event::Event;
 pub use attribute::Attribute;
-pub use write::WriteHtml;
-pub use read::ReadHtml;
+pub use stream::HtmlStreamer;

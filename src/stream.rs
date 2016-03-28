@@ -3,15 +3,15 @@ use std::io::Write;
 use std::marker::PhantomData;
 use Event;
 
-pub struct ReadHtml<'a, I> where I: Iterator<Item=Event<'a>> + 'a {
+pub struct HtmlStreamer<'a, I> where I: Iterator<Item=Event<'a>> + 'a {
     events: I,
     buffer: Vec<u8>,
     ev_life: PhantomData<Event<'a>>,
 }
 
-impl<'a, I> ReadHtml<'a, I> where I: Iterator<Item=Event<'a>> {
-    pub fn new<II>(events: II) -> ReadHtml<'a, I> where II: IntoIterator<IntoIter=I, Item=Event<'a>> {
-        ReadHtml {
+impl<'a, I> HtmlStreamer<'a, I> where I: Iterator<Item=Event<'a>> {
+    pub fn new<II>(events: II) -> HtmlStreamer<'a, I> where II: IntoIterator<IntoIter=I, Item=Event<'a>> {
+        HtmlStreamer {
             events: events.into_iter(),
             buffer: Vec::new(),
             ev_life: PhantomData,
@@ -19,7 +19,7 @@ impl<'a, I> ReadHtml<'a, I> where I: Iterator<Item=Event<'a>> {
     }
 }
 
-impl<'a, I> io::Read for ReadHtml<'a, I> where I: Iterator<Item=Event<'a>> {
+impl<'a, I> io::Read for HtmlStreamer<'a, I> where I: Iterator<Item=Event<'a>> {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         while self.buffer.len() == 0 {
             if let Some(event) = self.events.next() {
@@ -51,7 +51,7 @@ impl<'a, I> io::Read for ReadHtml<'a, I> where I: Iterator<Item=Event<'a>> {
 #[cfg(test)]
 mod tests {
     use std::io::Read;
-    use ReadHtml;
+    use HtmlStreamer;
 
     #[test]
     fn test() {
@@ -67,7 +67,7 @@ mod tests {
         ];
 
         let mut result = String::new();
-        ReadHtml::new(events).read_to_string(&mut result).unwrap();
+        HtmlStreamer::new(events).read_to_string(&mut result).unwrap();
 
         assert_eq!(result, "<h1 id=\"hello\" class=\"fun\">Hello, \
                             <small>world</small><img src=\"foo-link\" /></h1>");
