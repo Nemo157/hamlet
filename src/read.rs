@@ -20,27 +20,23 @@ impl<'a, I> ReadHtml<'a, I> where I: Iterator<Item=Event<'a>> {
 }
 
 impl<'a, I> io::Read for ReadHtml<'a, I> where I: Iterator<Item=Event<'a>> {
-    fn read(&mut self, mut buf: &mut [u8]) -> io::Result<usize> {
-        while self.current.len() < buf.len() {
-            if let Some(next) = self.events.next() {
-                try!(write!(&mut self.current, "{}", next));
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        while self.current.len() == 0 {
+            if let Some(event) = self.events.next() {
+                // Possible to do better?
+                try!(write!(&mut self.current, "{}", event));
             } else {
-                break;
+                return Ok(0)
             }
         }
-
-        if self.current.len() < buf.len() {
-            let len = self.current.len();
-            buf[..len].clone_from_slice(&self.current[..]);
-            self.current.clear();
-            Ok(len)
-        } else {
-            let leftover = self.current.split_off(buf.len());
-            buf.clone_from_slice(&self.current[..]);
-            self.current.clear();
-            self.current.extend_from_slice(&leftover[..]);
-            Ok(buf.len())
+        let curlen = self.current.len();
+        let len = ::std::cmp::min(curlen, buf.len());
+        buf[..len].clone_from_slice(&self.current[..len]);
+        for i in len..curlen {
+            self.current[i - len] = self.current[i];
         }
+        self.current.truncate(curlen - len);
+        Ok(len)
     }
 }
 
@@ -54,12 +50,12 @@ mod tests {
         let events = vec![
             start_tag!("h1", attrs!["id" => "hello"]),
             text!("Hello, "),
+            ::Event::RawHtml("".into()), // empty event
             start_tag!("small", attrs!["id" => "world"]),
             text!("world"),
             end_tag!("small"),
             end_tag!("h1"),
         ];
-
 
         let mut result = String::new();
         ReadHtml::new(events).read_to_string(&mut result).unwrap();
