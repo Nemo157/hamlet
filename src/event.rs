@@ -2,7 +2,7 @@ use std::borrow::Cow;
 
 use Attribute;
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Event<'a> {
   StartTag {
     name: Cow<'a, str>,
