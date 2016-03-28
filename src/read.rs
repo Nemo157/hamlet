@@ -38,6 +38,14 @@ impl<'a, I> io::Read for ReadHtml<'a, I> where I: Iterator<Item=Event<'a>> {
         self.buffer.truncate(curlen - len);
         Ok(len)
     }
+
+    fn read_to_end(&mut self, buf: &mut Vec<u8>) -> io::Result<usize> {
+        let start = buf.len();
+        while let Some(event) = self.events.next() {
+            try!(write!(buf, "{}", event));
+        }
+        Ok(buf.len() - start)
+    }
 }
 
 #[cfg(test)]
