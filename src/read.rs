@@ -5,37 +5,37 @@ use Event;
 
 pub struct ReadHtml<'a, I> where I: Iterator<Item=Event<'a>> + 'a {
     events: I,
-    current: Vec<u8>,
-    phantom: PhantomData<&'a I>,
+    buffer: Vec<u8>,
+    ev_life: PhantomData<Event<'a>>,
 }
 
 impl<'a, I> ReadHtml<'a, I> where I: Iterator<Item=Event<'a>> {
     pub fn new<II>(events: II) -> ReadHtml<'a, I> where II: IntoIterator<IntoIter=I, Item=Event<'a>> {
         ReadHtml {
             events: events.into_iter(),
-            current: Vec::new(),
-            phantom: PhantomData,
+            buffer: Vec::new(),
+            ev_life: PhantomData,
         }
     }
 }
 
 impl<'a, I> io::Read for ReadHtml<'a, I> where I: Iterator<Item=Event<'a>> {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        while self.current.len() == 0 {
+        while self.buffer.len() == 0 {
             if let Some(event) = self.events.next() {
                 // Possible to do better?
-                try!(write!(&mut self.current, "{}", event));
+                try!(write!(&mut self.buffer, "{}", event));
             } else {
                 return Ok(0)
             }
         }
-        let curlen = self.current.len();
+        let curlen = self.buffer.len();
         let len = ::std::cmp::min(curlen, buf.len());
-        buf[..len].clone_from_slice(&self.current[..len]);
+        buf[..len].clone_from_slice(&self.buffer[..len]);
         for i in len..curlen {
-            self.current[i - len] = self.current[i];
+            self.buffer[i - len] = self.buffer[i];
         }
-        self.current.truncate(curlen - len);
+        self.buffer.truncate(curlen - len);
         Ok(len)
     }
 }
