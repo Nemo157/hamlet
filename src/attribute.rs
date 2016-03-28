@@ -21,9 +21,3 @@ impl<'a> fmt::Display for Attribute<'a> {
         write!(f, "{}=\"{}\"", self.name, self.value)
     }
 }
-
-impl<'a> Attribute<'a> {
-    pub fn utf8_len(&self) -> usize {
-        self.name.len() + self.value.len() + 3
-    }
-}

@@ -26,14 +26,14 @@ impl<'a> fmt::Display for Event<'a> {
             Event::StartTag { ref name, ref attrs } => {
                 try!(write!(f, "<{}", name));
                 for attr in attrs.iter() {
-                    try!(write!(f, "{}", attr));
+                    try!(write!(f, " {}", attr));
                 }
                 write!(f, ">")
             }
             Event::ClosedTag { ref name, ref attrs } => {
                 try!(write!(f, "<{}", name));
                 for attr in attrs.iter() {
-                    try!(write!(f, "{}", attr));
+                    try!(write!(f, " {}", attr));
                 }
                 write!(f, " />")
             }
@@ -46,36 +46,6 @@ impl<'a> fmt::Display for Event<'a> {
             }
             Event::RawHtml(ref html) => {
                 write!(f, "{}", html)
-            }
-        }
-    }
-}
-
-impl<'a> Event<'a> {
-    pub fn utf8_len(&self) -> usize {
-        match *self {
-            Event::StartTag { ref name, ref attrs } => {
-                let mut len = name.len() + 2;
-                for attr in attrs.iter() {
-                    len += attr.utf8_len() + 1;
-                }
-                len
-            }
-            Event::ClosedTag { ref name, ref attrs } => {
-                let mut len = name.len() + 4;
-                for attr in attrs.iter() {
-                    len += attr.utf8_len() + 1;
-                }
-                len
-            }
-            Event::EndTag { ref name } => {
-                name.len() + 3
-            }
-            Event::Text(ref text) => {
-                text.len()
-            }
-            Event::RawHtml(ref html) => {
-                html.len()
             }
         }
     }
