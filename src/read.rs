@@ -21,24 +21,25 @@ impl<'a, I> ReadHtml<'a, I> where I: Iterator<Item=Event<'a>> {
 
 impl<'a, I> io::Read for ReadHtml<'a, I> where I: Iterator<Item=Event<'a>> {
     fn read(&mut self, mut buf: &mut [u8]) -> io::Result<usize> {
-        if self.current.len() > 0 {
-            if self.current.len() < buf.len() {
-                let len = self.current.len();
-                buf[..len].clone_from_slice(&self.current[..]);
-                self.current.clear();
-                Ok(len)
+        while self.current.len() < buf.len() {
+            if let Some(next) = self.events.next() {
+                try!(write!(&mut self.current, "{}", next));
             } else {
-                let leftover = self.current.split_off(buf.len());
-                buf.clone_from_slice(&self.current[..]);
-                self.current.clear();
-                self.current.extend_from_slice(&leftover[..]);
-                Ok(buf.len())
+                break;
             }
-        } else if let Some(next) = self.events.next() {
-            try!(write!(&mut self.current, "{}", next));
-            self.read(buf)
+        }
+
+        if self.current.len() < buf.len() {
+            let len = self.current.len();
+            buf[..len].clone_from_slice(&self.current[..]);
+            self.current.clear();
+            Ok(len)
         } else {
-            Ok(0)
+            let leftover = self.current.split_off(buf.len());
+            buf.clone_from_slice(&self.current[..]);
+            self.current.clear();
+            self.current.extend_from_slice(&leftover[..]);
+            Ok(buf.len())
         }
     }
 }
