@@ -1,3 +1,14 @@
+macro_rules! attrs {
+    ($($name:ident = $value:expr),+) => {
+        (::std::borrow::Cow::Owned(vec![
+            $($crate::Attribute {
+                name: ::std::borrow::Cow::from(stringify!($name)),
+                value: ::std::borrow::Cow::from($value),
+            }),+
+        ]))
+    }
+}
+
 #[macro_export]
 macro_rules! start_tag {
     ($name:expr) => {
@@ -6,10 +17,10 @@ macro_rules! start_tag {
             attrs: $crate::Attribute::none(),
         })
     };
-    ($name:expr, $attrs:expr) => {
+    ($name:expr, $($aname:ident = $aval:expr),+) => {
         ($crate::Event::StartTag {
             name: ::std::borrow::Cow::from($name),
-            attrs: $attrs,
+            attrs: attrs!($($aname = $aval),+),
         })
     };
 }
@@ -22,10 +33,10 @@ macro_rules! closed_tag {
             attrs: $crate::Attribute::none(),
         })
     };
-    ($name:expr, $attrs:expr) => {
+    ($name:expr, $($aname:ident = $aval:expr),+) => {
         ($crate::Event::ClosedTag {
             name: ::std::borrow::Cow::from($name),
-            attrs: $attrs,
+            attrs: attrs!($($aname = $aval),+),
         })
     };
 }
@@ -51,23 +62,4 @@ macro_rules! raw_html {
     ($html:expr) => {
         ($crate::Event::RawHtml(::std::borrow::Cow::from($html)))
     };
-}
-
-#[macro_export]
-macro_rules! attr {
-    ($name:expr => $value:expr) => {
-        ($crate::Attribute {
-            name: ::std::borrow::Cow::from($name),
-            value: ::std::borrow::Cow::from($value),
-        })
-    }
-}
-
-#[macro_export]
-macro_rules! attrs {
-    ($($name:expr => $value:expr),+) => {
-        (::std::borrow::Cow::Owned(vec![
-            $(attr!($name => $value)),+
-        ]))
-    }
 }

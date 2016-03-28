@@ -48,18 +48,20 @@ mod tests {
     #[test]
     fn test() {
         let events = vec![
-            start_tag!("h1", attrs!["id" => "hello"]),
+            start_tag!("h1", id="hello", class="fun"),
             text!("Hello, "),
-            ::Event::RawHtml("".into()), // empty event
-            start_tag!("small", attrs!["id" => "world"]),
+            raw_html!(""), // empty event
+            start_tag!("small"),
             text!("world"),
             end_tag!("small"),
+            closed_tag!("img", src="foo-link"),
             end_tag!("h1"),
         ];
 
         let mut result = String::new();
         ReadHtml::new(events).read_to_string(&mut result).unwrap();
 
-        assert_eq!(result, "<h1 id=\"hello\">Hello, <small id=\"world\">world</small></h1>");
+        assert_eq!(result, "<h1 id=\"hello\" class=\"fun\">Hello, \
+                            <small>world</small><img src=\"foo-link\" /></h1>");
     }
 }
