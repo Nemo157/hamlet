@@ -10,9 +10,6 @@ matrix:
   allow_failures:
     - rust: nightly
 
-install:
-  - cargo install rustfmt
-
 script:
   - cargo build --release --verbose
   - cargo test --verbose
