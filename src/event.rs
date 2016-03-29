@@ -18,6 +18,20 @@ pub enum Event<'a> {
     RawHtml(Cow<'a, str>),
 }
 
+impl<'a> Event<'a> {
+    pub fn closed(self) -> Event<'a> {
+        if let Event::StartTag { name, attrs, .. } = self {
+            Event::StartTag {
+                name: name,
+                attrs: attrs,
+                is_self_closing: true,
+            }
+        } else {
+            self
+        }
+    }
+}
+
 impl<'a> fmt::Display for Event<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {

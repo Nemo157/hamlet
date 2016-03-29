@@ -28,24 +28,6 @@ macro_rules! start_tag {
 }
 
 #[macro_export]
-macro_rules! closed_tag {
-    ($name:expr) => {
-        ($crate::Event::StartTag {
-            name: ::std::borrow::Cow::from($name),
-            attrs: $crate::AttributeSet::empty(),
-            is_self_closing: true,
-        })
-    };
-    ($name:expr, $($aname:ident = $aval:expr),+) => {
-        ($crate::Event::StartTag {
-            name: ::std::borrow::Cow::from($name),
-            attrs: attrs!($($aname = $aval),+),
-            is_self_closing: true,
-        })
-    };
-}
-
-#[macro_export]
 macro_rules! end_tag {
     ($name:expr) => {
         ($crate::Event::EndTag {
