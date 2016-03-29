@@ -1,6 +1,9 @@
 [package]
-name = "html-event"
+name = "hamlet"
 version = "0.1.0"
-authors = ["Wim Looman <wim@nemo157.com>"]
+authors = [
+    "Wim Looman <wim@nemo157.com>",
+    "critiqjo <john.ch.fr@gmail.com>"
+]
 
 [dependencies]
