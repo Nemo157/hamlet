@@ -19,11 +19,7 @@ macro_rules! start_tag {
         })
     };
     ($name:expr, $($aname:ident = $aval:expr),+) => {
-        ($crate::Event::StartTag {
-            name: ::std::borrow::Cow::from($name),
-            attrs: attrs!($($aname = $aval),+),
-            is_self_closing: false,
-        })
+        start_tag!($name).with_attrs(attrs!($($aname = $aval),+))
     };
 }
 

@@ -30,6 +30,20 @@ impl<'a> Event<'a> {
             self
         }
     }
+
+    pub fn with_attrs<T>(self, attrs: T) -> Event<'a>
+        where T: Into<AttributeSet<'a>>
+    {
+        if let Event::StartTag { name, is_self_closing, .. } = self {
+            Event::StartTag {
+                name: name,
+                attrs: attrs.into(),
+                is_self_closing: is_self_closing,
+            }
+        } else {
+            self
+        }
+    }
 }
 
 impl<'a> fmt::Display for Event<'a> {
