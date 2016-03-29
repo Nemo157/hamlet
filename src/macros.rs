@@ -1,11 +1,11 @@
 macro_rules! attrs {
     ($($name:ident = $value:expr),+) => {
-        (::std::borrow::Cow::Owned(vec![
+        ($crate::AttributeSet::new(::std::borrow::Cow::Owned(vec![
             $($crate::Attribute {
                 name: ::std::borrow::Cow::from(stringify!($name)),
                 value: ::std::borrow::Cow::from($value),
             }),+
-        ]))
+        ])))
     }
 }
 
@@ -14,7 +14,7 @@ macro_rules! start_tag {
     ($name:expr) => {
         ($crate::Event::StartTag {
             name: ::std::borrow::Cow::from($name),
-            attrs: $crate::attribute::empty_set(),
+            attrs: $crate::AttributeSet::empty(),
             is_self_closing: false,
         })
     };
@@ -32,7 +32,7 @@ macro_rules! closed_tag {
     ($name:expr) => {
         ($crate::Event::StartTag {
             name: ::std::borrow::Cow::from($name),
-            attrs: $crate::attribute::empty_set(),
+            attrs: $crate::AttributeSet::empty(),
             is_self_closing: true,
         })
     };

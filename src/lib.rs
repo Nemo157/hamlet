@@ -1,6 +1,8 @@
 #[macro_use]
 pub mod macros;
-pub mod attribute;
+
+mod attribute;
+mod attribute_set;
 
 mod escape;
 mod event;
@@ -8,4 +10,5 @@ mod stream;
 
 pub use event::Event;
 pub use attribute::Attribute;
+pub use attribute_set::AttributeSet;
 pub use stream::HtmlStreamer;

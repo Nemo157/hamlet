@@ -1,10 +1,10 @@
 use std::fmt;
 use std::borrow::Cow;
 
-use attribute::AttributeSet;
+use AttributeSet;
 use escape::Escaped;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug)]
 pub enum Event<'a> {
     StartTag {
         name: Cow<'a, str>,
@@ -22,14 +22,11 @@ impl<'a> fmt::Display for Event<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Event::StartTag { ref name, ref attrs, is_self_closing } => {
-                try!(write!(f, "<{}", name));
-                for attr in attrs.iter() {
-                    try!(write!(f, " {}", attr));
-                }
                 if is_self_closing {
-                  try!(write!(f, " /"));
+                    write!(f, "<{}{} />", name, attrs)
+                } else {
+                    write!(f, "<{}{}>", name, attrs)
                 }
-                write!(f, ">")
             }
             Event::EndTag { ref name } => write!(f, "</{}>", name),
             Event::Text(ref text) => write!(f, "{}", Escaped(text)),
