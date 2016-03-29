@@ -2,6 +2,7 @@ use std::fmt;
 use std::borrow::Cow;
 
 use attribute::AttributeSet;
+use escape::Escaped;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Event<'a> {
@@ -38,10 +39,7 @@ impl<'a> fmt::Display for Event<'a> {
                 write!(f, " />")
             }
             Event::EndTag { ref name } => write!(f, "</{}>", name),
-            Event::Text(ref text) => {
-                // TODO: Escaping
-                write!(f, "{}", text)
-            }
+            Event::Text(ref text) => write!(f, "{}", Escaped(text)),
             Event::RawHtml(ref html) => write!(f, "{}", html),
         }
     }
