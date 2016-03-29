@@ -9,7 +9,7 @@ pub enum Event<'a> {
     StartTag {
         name: Cow<'a, str>,
         attrs: AttributeSet<'a>,
-        is_self_closing: bool,
+        self_closing: bool,
     },
     EndTag {
         name: Cow<'a, str>,
@@ -24,7 +24,7 @@ impl<'a> Event<'a> {
             Event::StartTag {
                 name: name,
                 attrs: attrs,
-                is_self_closing: true,
+                self_closing: true,
             }
         } else {
             self
@@ -34,11 +34,11 @@ impl<'a> Event<'a> {
     pub fn with_attrs<T>(self, attrs: T) -> Event<'a>
         where T: Into<AttributeSet<'a>>
     {
-        if let Event::StartTag { name, is_self_closing, .. } = self {
+        if let Event::StartTag { name, self_closing, .. } = self {
             Event::StartTag {
                 name: name,
                 attrs: attrs.into(),
-                is_self_closing: is_self_closing,
+                self_closing: self_closing,
             }
         } else {
             self
@@ -49,8 +49,8 @@ impl<'a> Event<'a> {
 impl<'a> fmt::Display for Event<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Event::StartTag { ref name, ref attrs, is_self_closing } => {
-                if is_self_closing {
+            Event::StartTag { ref name, ref attrs, self_closing } => {
+                if self_closing {
                     write!(f, "<{}{} />", name, attrs)
                 } else {
                     write!(f, "<{}{}>", name, attrs)
