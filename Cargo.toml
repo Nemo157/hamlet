@@ -5,5 +5,11 @@ authors = [
     "Wim Looman <wim@nemo157.com>",
     "critiqjo <john.ch.fr@gmail.com>"
 ]
+description = "Work in progress for a low-level html event stream definition"
+
+readme = "README.md"
+keywords = ["html", "hamlet"]
+
+license = "MIT/Apache-2.0"
 
 [dependencies]
