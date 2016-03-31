@@ -44,6 +44,7 @@ mod tests {
             Event::text("world"),
             Event::end_tag("small"),
             Event::start_tag("img", attr_set!(src="foo-link")).closed(),
+            Event::start_tag("br", attr_set!(dataAttr="'1'")).closed(),
             Event::end_tag("h1"),
         ];
 
@@ -53,6 +54,7 @@ mod tests {
 
         assert_eq!(res_str.as_str(),
                    "<h1 id=\"hello\" class=\"fun\">Hello, \
-                    <small>world</small><img src=\"foo-link\" /></h1>");
+                    <small>world</small><img src=\"foo-link\" />\
+                    <br data-attr=\"&apos;1&apos;\" /></h1>");
     }
 }

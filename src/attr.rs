@@ -23,8 +23,7 @@ impl<'a> Attribute<'a> {
 
 impl<'a> fmt::Display for Attribute<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // TODO handle invalid attribute names
-        write!(f, "{}=\"{}\"", self.name, Escaped(&self.value))
+        write!(f, "{}=\"{}\"", self.name.as_ref(), Escaped(&self.value))
     }
 }
 

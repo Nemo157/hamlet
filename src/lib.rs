@@ -1,3 +1,5 @@
+pub mod util;
+
 #[macro_use]
 mod macros;
 
