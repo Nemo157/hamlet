@@ -19,24 +19,40 @@ pub enum Event<'a> {
 }
 
 impl<'a> Event<'a> {
+    pub fn start_tag<S>(name: S, attrs: AttributeSet<'a>) -> Event<'a>
+        where S: Into<Cow<'a, str>>
+    {
+        Event::StartTag {
+            name: name.into(),
+            attrs: attrs,
+            self_closing: false,
+        }
+    }
+
+    pub fn end_tag<S>(name: S) -> Event<'a>
+        where S: Into<Cow<'a, str>>
+    {
+        Event::EndTag { name: name.into() }
+    }
+
+    pub fn text<S>(s: S) -> Event<'a>
+        where S: Into<Cow<'a, str>>
+    {
+        Event::Text(s.into())
+    }
+
+    pub fn raw_html<S>(s: S) -> Event<'a>
+        where S: Into<Cow<'a, str>>
+    {
+        Event::RawHtml(s.into())
+    }
+
     pub fn closed(self) -> Event<'a> {
         if let Event::StartTag { name, attrs, .. } = self {
             Event::StartTag {
                 name: name,
                 attrs: attrs,
                 self_closing: true,
-            }
-        } else {
-            self
-        }
-    }
-
-    pub fn with_attrs(self, attrs: AttributeSet<'a>) -> Event<'a> {
-        if let Event::StartTag { name, self_closing, .. } = self {
-            Event::StartTag {
-                name: name,
-                attrs: attrs.into(),
-                self_closing: self_closing,
             }
         } else {
             self

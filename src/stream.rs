@@ -32,18 +32,19 @@ impl<'a, I, J> HtmlStreamer<'a, I, J>
 #[cfg(test)]
 mod tests {
     use HtmlStreamer;
+    use Event;
 
     #[test]
     fn test() {
         let events = vec![
-            start_tag!("h1", id="hello", class="fun"),
-            text!("Hello, "),
-            raw_html!(""), // empty event
-            start_tag!("small"),
-            text!("world"),
-            end_tag!("small"),
-            start_tag!("img", src="foo-link").closed(),
-            end_tag!("h1"),
+            Event::start_tag("h1", attr_set!(id="hello", class="fun")),
+            Event::text("Hello, "),
+            Event::raw_html(""), // empty event
+            Event::start_tag("small", attr_set!()),
+            Event::text("world"),
+            Event::end_tag("small"),
+            Event::start_tag("img", attr_set!(src="foo-link")).closed(),
+            Event::end_tag("h1"),
         ];
 
         let mut result = Vec::new();

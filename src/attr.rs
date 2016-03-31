@@ -29,13 +29,8 @@ impl<'a> fmt::Display for Attribute<'a> {
 }
 
 #[derive(Clone, Debug)]
+/// Use `attr_set!` macro instead of manual construction
 pub struct AttributeSet<'a>(pub Cow<'a, [Attribute<'a>]>);
-
-impl<'a> AttributeSet<'a> {
-    pub fn empty() -> AttributeSet<'a> {
-        AttributeSet(Cow::Borrowed(&[]))
-    }
-}
 
 impl<'a> fmt::Display for AttributeSet<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
