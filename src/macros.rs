@@ -1,11 +1,8 @@
 #[macro_export]
 macro_rules! attrs {
     ($($name:ident = $value:expr),+) => {
-        ($crate::AttributeSet::new(::std::borrow::Cow::Owned(vec![
-            $($crate::Attribute {
-                name: ::std::borrow::Cow::from(stringify!($name)),
-                value: ::std::borrow::Cow::from($value),
-            }),+
+        ($crate::AttributeSet(::std::borrow::Cow::Owned(vec![
+            $($crate::Attribute::new(stringify!($name), $value)),+
         ])))
     }
 }

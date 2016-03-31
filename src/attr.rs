@@ -9,26 +9,15 @@ pub struct Attribute<'a> {
     pub value: Cow<'a, str>,
 }
 
-#[derive(Clone, Debug)]
-pub struct AttributeSet<'a> {
-    pub attrs: Cow<'a, [Attribute<'a>]>,
-}
-
-impl<'a> AttributeSet<'a> {
-    pub fn empty() -> AttributeSet<'a> {
-        AttributeSet::new(Cow::Borrowed(&[]))
-    }
-
-    pub fn new(attrs: Cow<'a, [Attribute<'a>]>) -> AttributeSet<'a> {
-        AttributeSet { attrs: attrs }
-    }
-}
-
-impl<'a, T> From<T> for AttributeSet<'a>
-    where T: Into<Cow<'a, [Attribute<'a>]>>
-{
-    fn from(attrs: T) -> AttributeSet<'a> {
-        AttributeSet::new(attrs.into())
+impl<'a> Attribute<'a> {
+    pub fn new<N, V>(name: N, value: V) -> Attribute<'a>
+        where N: Into<Cow<'a, str>>,
+              V: Into<Cow<'a, str>>
+    {
+        Attribute {
+            name: name.into(),
+            value: value.into(),
+        }
     }
 }
 
@@ -39,9 +28,18 @@ impl<'a> fmt::Display for Attribute<'a> {
     }
 }
 
+#[derive(Clone, Debug)]
+pub struct AttributeSet<'a>(pub Cow<'a, [Attribute<'a>]>);
+
+impl<'a> AttributeSet<'a> {
+    pub fn empty() -> AttributeSet<'a> {
+        AttributeSet(Cow::Borrowed(&[]))
+    }
+}
+
 impl<'a> fmt::Display for AttributeSet<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        for attr in self.attrs.iter() {
+        for attr in self.0.iter() {
             try!(write!(f, " {}", attr));
         }
         Ok(())

@@ -31,9 +31,7 @@ impl<'a> Event<'a> {
         }
     }
 
-    pub fn with_attrs<T>(self, attrs: T) -> Event<'a>
-        where T: Into<AttributeSet<'a>>
-    {
+    pub fn with_attrs(self, attrs: AttributeSet<'a>) -> Event<'a> {
         if let Event::StartTag { name, self_closing, .. } = self {
             Event::StartTag {
                 name: name,
