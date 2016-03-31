@@ -2,27 +2,25 @@ use std::io;
 use std::marker::PhantomData;
 use Event;
 
-pub struct HtmlStreamer<'a, I, J>
-    where I: IntoIterator<IntoIter = J, Item = Event<'a>> + 'a,
-          J: Iterator<Item = Event<'a>>
-{
-    events: I,
+pub struct HtmlStreamer<'a, I> {
+    ev_iter: I,
     ev_life: PhantomData<Event<'a>>,
 }
 
-impl<'a, I, J> HtmlStreamer<'a, I, J>
-    where I: IntoIterator<IntoIter = J, Item = Event<'a>> + 'a,
-          J: Iterator<Item = Event<'a>>
+impl<'a, I> HtmlStreamer<'a, I>
+    where I: Iterator<Item = Event<'a>>
 {
-    pub fn new(events: I) -> HtmlStreamer<'a, I, J> {
+    pub fn new<T>(events: T) -> HtmlStreamer<'a, I>
+        where T: IntoIterator<IntoIter = I, Item = Event<'a>> + 'a
+    {
         HtmlStreamer {
-            events: events,
+            ev_iter: events.into_iter(),
             ev_life: PhantomData,
         }
     }
 
     pub fn stream(self, w: &mut io::Write) -> io::Result<usize> {
-        for ev in self.events.into_iter() {
+        for ev in self.ev_iter {
             try!(write!(w, "{}", ev));
         }
         return Ok(0);
