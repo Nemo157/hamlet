@@ -95,7 +95,7 @@ impl<'a> fmt::Display for Attribute<'a> {
 pub struct AttributeSet<'a>(pub Cow<'a, [Attribute<'a>]>);
 
 impl<'a> AttributeSet<'a> {
-    /// Try and get a reference to an existing attribute.
+    /// Try and get the value of an attribute.
     ///
     /// # Examples
     ///
@@ -103,8 +103,7 @@ impl<'a> AttributeSet<'a> {
     /// # #[macro_use] extern crate hamlet;
     /// # fn main() {
     /// let attrs = attr_set!(id = "foo");
-    /// assert_eq!(attrs.get_attr("id"),
-    ///            Some(&hamlet::Attribute::new("id", "foo")));
+    /// assert_eq!(attrs.get_value("id"), Some("foo"));
     /// # }
     /// ```
     ///
@@ -112,38 +111,14 @@ impl<'a> AttributeSet<'a> {
     /// # #[macro_use] extern crate hamlet;
     /// # fn main() {
     /// let attrs = attr_set!(id = "foo");
-    /// assert_eq!(attrs.get_attr("class"), None);
+    /// assert_eq!(attrs.get_value("class"), None);
     /// # }
     /// ```
-    pub fn get_attr<S>(&self, name: S) -> Option<&Attribute<'a>>
+    pub fn get_value<S>(&self, name: S) -> Option<&str>
         where S: AsRef<str>
     {
-        self.0.iter().find(|attr| attr.name == name.as_ref())
+        self.0.iter().find(|attr| attr.name == name.as_ref()).map(|a| a.value.as_ref())
     }
-
-    /// Try and get a mutable reference to an existing attribute.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # #[macro_use] extern crate hamlet;
-    /// # fn main() {
-    /// let mut attrs = attr_set!(id = "foo");
-    ///
-    /// if let Some(attr) = attrs.get_attr_mut("id") {
-    ///     attr.value = "bar".into();
-    /// }
-    ///
-    /// assert_eq!(attrs.get_attr("id"),
-    ///            Some(&hamlet::Attribute::new("id", "bar")));
-    /// # }
-    /// ```
-    pub fn get_attr_mut<S>(&mut self, name: S) -> Option<&mut Attribute<'a>>
-        where S: AsRef<str>
-    {
-        self.0.to_mut().iter_mut().find(|attr| attr.name == name.as_ref())
-    }
-
 
     /// Unconditionally set an attribute to a value. If the attribute already
     /// exists in the set will update its value, otherwise will add a new
@@ -156,10 +131,9 @@ impl<'a> AttributeSet<'a> {
     /// # fn main() {
     /// let mut attrs = attr_set!(id = "foo");
     ///
-    /// attrs.set_attr("id", "bar");
+    /// attrs.set("id", "bar");
     ///
-    /// assert_eq!(attrs.get_attr("id"),
-    ///            Some(&hamlet::Attribute::new("id", "bar")));
+    /// assert_eq!(attrs.get_value("id"), Some("bar"));
     /// # }
     /// ```
     ///
@@ -168,13 +142,12 @@ impl<'a> AttributeSet<'a> {
     /// # fn main() {
     /// let mut attrs = attr_set!(id = "foo");
     ///
-    /// attrs.set_attr("class", "bar");
+    /// attrs.set("class", "bar");
     ///
-    /// assert_eq!(attrs.get_attr("class"),
-    ///            Some(&hamlet::Attribute::new("class", "bar")));
+    /// assert_eq!(attrs.get_value("class"), Some("bar"));
     /// # }
     /// ```
-    pub fn set_attr<N, V>(&mut self, name: N, value: V)
+    pub fn set<N, V>(&mut self, name: N, value: V)
         where N: Into<Cow<'a, str>>,
               V: Into<Cow<'a, str>>
     {
@@ -185,6 +158,30 @@ impl<'a> AttributeSet<'a> {
             attrs[pos].value = value;
         } else {
             attrs.push(Attribute::new(name, value));
+        }
+    }
+
+    /// Removes and returns the attribute it if there was one.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # #[macro_use] extern crate hamlet;
+    /// # fn main() {
+    /// let mut attrs = attr_set!(id = "foo");
+    ///
+    /// assert_eq!(attrs.remove("id").map(|a| a.value).unwrap().as_ref(), "foo");
+    /// # }
+    /// ```
+    pub fn remove<S>(&mut self, name: S) -> Option<Attribute<'a>>
+        where S: AsRef<str>
+    {
+        let attrs = self.0.to_mut();
+
+        if let Some(pos) = attrs.iter().position(|attr| attr.name.as_ref() == name.as_ref()) {
+            Some(attrs.remove(pos))
+        } else {
+            None
         }
     }
 }
