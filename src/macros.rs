@@ -14,11 +14,11 @@
 /// ```
 macro_rules! attr_set {
     () => {
-        $crate::AttributeSet(::std::borrow::Cow::Borrowed(&[]))
+        $crate::AttributeSet::empty()
     };
     ($($name:ident = $value:expr),+) => {
-        $crate::AttributeSet(::std::borrow::Cow::Owned(vec![
+        $crate::AttributeSet::from_vec(vec![
             $($crate::Attribute::new($crate::util::identifier_to_tag_name(stringify!($name)), $value)),+
-        ]))
+        ])
     };
 }

@@ -88,13 +88,26 @@ impl<'a> fmt::Display for Attribute<'a> {
 ///
 /// This is stored as a plain slice instead of a set as in most cases it will
 /// be a small collection over which linear search will be more efficient.
-///
-/// Generally end users shouldn't construct this struct directly, it's expected
-/// that there will be builder APIs or macros available to make construction
-/// easier, such as the provided [`attr_set!`](./macro.attr_set!.html) macro.
-pub struct AttributeSet<'a>(pub Cow<'a, [Attribute<'a>]>);
+pub struct AttributeSet<'a>(Cow<'a, [Attribute<'a>]>);
 
 impl<'a> AttributeSet<'a> {
+    /// Return an empty `AttributeSet`
+    pub fn empty() -> AttributeSet<'a> {
+        AttributeSet(Cow::Borrowed(&[]))
+    }
+
+    /// Note that this does not check for duplicate attribute names. Generally,
+    /// end users are not expected to call this method, and instead use
+    /// high-level builder APIs or macros available to make construction easier,
+    /// such as the provided [`attr_set!`](./macro.attr_set!.html) macro.
+    pub fn from_vec(attrs: Vec<Attribute<'a>>) -> AttributeSet<'a> {
+        AttributeSet(Cow::Owned(attrs))
+    }
+
+    pub fn into_vec(self) -> Vec<Attribute<'a>> {
+        self.0.into_owned()
+    }
+
     /// Try and get the value of an attribute.
     ///
     /// # Examples
