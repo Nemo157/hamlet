@@ -23,7 +23,11 @@ impl<'a> Attribute<'a> {
 
 impl<'a> fmt::Display for Attribute<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}=\"{}\"", self.name.as_ref(), Escaped(&self.value))
+        if self.value == "" {
+            write!(f, "{}", self.name)
+        } else {
+            write!(f, "{}=\"{}\"", self.name.as_ref(), Escaped(&self.value))
+        }
     }
 }
 
