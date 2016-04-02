@@ -9,11 +9,13 @@ pub enum Event<'a> {
     StartTag {
         name: Cow<'a, str>,
         attrs: AttributeSet<'a>,
+        /// Marker indicating self-closing tags such as `<br />`
         self_closing: bool,
     },
     EndTag {
         name: Cow<'a, str>,
     },
+    /// The text contained will be escaped on `Display`.
     Text(Cow<'a, str>),
     RawHtml(Cow<'a, str>),
 }
@@ -47,6 +49,8 @@ impl<'a> Event<'a> {
         Event::RawHtml(s.into())
     }
 
+    /// If `self` is a `StartTag`, returns the `Event` after setting
+    /// `self_closing` to `true`; otherwise, it is a no-op.
     pub fn closed(self) -> Event<'a> {
         if let Event::StartTag { name, attrs, .. } = self {
             Event::StartTag {

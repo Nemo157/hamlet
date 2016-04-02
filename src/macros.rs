@@ -1,5 +1,17 @@
 #[macro_export]
-/// doc which explains: `dataAttrName` will become `data-attr-name`
+/// A convenience macro for `AttributeSet` construction. Attributes with hyphens
+/// should be camel-cased.
+///
+/// # Example
+///
+/// ```rust
+/// # #[macro_use] extern crate hamlet;
+/// # fn main() {
+/// let attrs = attr_set!(dataFoo = "bar");
+/// assert_eq!(attrs.get_attr("data-foo"),
+///            Some(&hamlet::Attribute::new("data-foo", "bar")));
+/// # }
+/// ```
 macro_rules! attr_set {
     () => {
         $crate::AttributeSet(::std::borrow::Cow::Borrowed(&[]))

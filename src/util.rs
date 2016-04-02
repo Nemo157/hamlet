@@ -1,6 +1,7 @@
 use std::ascii::AsciiExt;
 use std::borrow::Cow;
 
+/// Internally used by the macro to hyphenate camel-cased attribute names.
 pub fn identifier_to_tag_name<'a, T>(s: T) -> Cow<'a, str>
     where T: Into<Cow<'a, str>>
 {
