@@ -3,6 +3,36 @@ use std::borrow::Cow;
 
 use escape::Escaped;
 
+/// An [HTML attribute](https://www.w3.org/TR/html/syntax.html#attributes-0).
+///
+/// The name for the attribute will not be validated, you must ensure it meets
+/// the requirements specified in the spec yourself.
+///
+/// The value for the attribute will be escaped automatically. If it is an
+/// empty string then the attribute will be written with the 'Empty attribute
+/// syntax'.
+///
+/// # Examples
+///
+/// ```rust
+/// let attr = hamlet::Attribute::new("id", "foo");
+/// assert_eq!(format!("{}", attr), "id=\"foo\"");
+/// ```
+///
+/// ```rust
+/// let attr = hamlet::Attribute::new("id", "bar & baz");
+/// assert_eq!(format!("{}", attr), "id=\"bar &amp; baz\"");
+/// ```
+///
+/// ```rust
+/// let attr = hamlet::Attribute::new("invalid=id", "foo");
+/// assert_eq!(format!("{}", attr), "invalid=id=\"foo\"");
+/// ```
+///
+/// ```rust
+/// let attr = hamlet::Attribute::new("checked", "");
+/// assert_eq!(format!("{}", attr), "checked");
+/// ```
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Attribute<'a> {
     pub name: Cow<'a, str>,
@@ -10,6 +40,28 @@ pub struct Attribute<'a> {
 }
 
 impl<'a> Attribute<'a> {
+    /// Create an attribute, useful to avoid having to convert strings to
+    /// `Cow<str>` yourself.
+    ///
+    /// Generally this shouldn't be used directly by end users, it's likely
+    /// that there are builder APIs or macros available that make attribute
+    /// construction easier, for example the modification methods on
+    /// [`AttributeSet`](struct.AttributeSet.html#methods) or the
+    /// [`attr_set!`](macro.attr_set!.html) macro.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use std::borrow::Cow;
+    /// let foo = "foo".to_owned();
+    /// let foo2 = foo.clone();
+    /// assert_eq!(
+    ///     hamlet::Attribute::new("id", foo),
+    ///     hamlet::Attribute {
+    ///         name: Cow::Borrowed("id"),
+    ///         value: Cow::Owned(foo2),
+    ///     });
+    /// ```
     pub fn new<N, V>(name: N, value: V) -> Attribute<'a>
         where N: Into<Cow<'a, str>>,
               V: Into<Cow<'a, str>>
@@ -32,22 +84,102 @@ impl<'a> fmt::Display for Attribute<'a> {
 }
 
 #[derive(Clone, Debug)]
-/// Prefer `attr_set!` macro over manual construction
+/// A set of [`Attribute`s](./struct.Attribute.html).
+///
+/// This is stored as a plain slice instead of a set as in most cases it will
+/// be a small collection over which linear search will be more efficient.
+///
+/// Generally end users shouldn't construct this struct directly, it's expected
+/// that there will be builder APIs or macros available to make construction
+/// easier, for example the provided [`attr_set!`](macro.attr_set!.html) macro.
 pub struct AttributeSet<'a>(pub Cow<'a, [Attribute<'a>]>);
 
 impl<'a> AttributeSet<'a> {
+    /// Try and get a reference to an existing attribute.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # #[macro_use] extern crate hamlet;
+    /// # fn main() {
+    /// let attrs = attr_set!(id = "foo");
+    /// assert_eq!(
+    ///     attrs.get_attr("id"),
+    ///     Some(&hamlet::Attribute::new("id", "foo")));
+    /// # }
+    /// ```
+    ///
+    /// ```rust
+    /// # #[macro_use] extern crate hamlet;
+    /// # fn main() {
+    /// let attrs = attr_set!(id = "foo");
+    /// assert_eq!(
+    ///     attrs.get_attr("class"),
+    ///     None);
+    /// # }
+    /// ```
     pub fn get_attr<S>(&self, name: S) -> Option<&Attribute<'a>>
         where S: AsRef<str>
     {
         self.0.iter().find(|attr| attr.name == name.as_ref())
     }
 
+    /// Try and get a mutable reference to an existing attribute.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # #[macro_use] extern crate hamlet;
+    /// # fn main() {
+    /// let mut attrs = attr_set!(id = "foo");
+    ///
+    /// if let Some(attr) = attrs.get_attr_mut("id") {
+    ///     attr.value = "bar".into();
+    /// }
+    ///
+    /// assert_eq!(
+    ///     attrs.get_attr("id"),
+    ///     Some(&hamlet::Attribute::new("id", "bar")));
+    /// # }
+    /// ```
     pub fn get_attr_mut<S>(&mut self, name: S) -> Option<&mut Attribute<'a>>
         where S: AsRef<str>
     {
         self.0.to_mut().iter_mut().find(|attr| attr.name == name.as_ref())
     }
 
+
+    /// Unconditionally set an attribute to a value. If the attribute already
+    /// exists in the set will update its value, otherwise will add a new
+    /// attribute to the set.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # #[macro_use] extern crate hamlet;
+    /// # fn main() {
+    /// let mut attrs = attr_set!(id = "foo");
+    ///
+    /// attrs.set_attr("id", "bar");
+    ///
+    /// assert_eq!(
+    ///     attrs.get_attr("id"),
+    ///     Some(&hamlet::Attribute::new("id", "bar")));
+    /// # }
+    /// ```
+    ///
+    /// ```rust
+    /// # #[macro_use] extern crate hamlet;
+    /// # fn main() {
+    /// let mut attrs = attr_set!(id = "foo");
+    ///
+    /// attrs.set_attr("class", "bar");
+    ///
+    /// assert_eq!(
+    ///     attrs.get_attr("class"),
+    ///     Some(&hamlet::Attribute::new("class", "bar")));
+    /// # }
+    /// ```
     pub fn set_attr<N, V>(&mut self, name: N, value: V)
         where N: Into<Cow<'a, str>>,
               V: Into<Cow<'a, str>>
