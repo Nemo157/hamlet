@@ -12,7 +12,7 @@ extern crate hamlet;
 use std::io;
 
 fn main() {
-    use hamlet::{Event, HtmlStreamer};
+    use hamlet::{Event, HtmlWriter};
     let events = vec![
         Event::text("Hello, "),
         Event::start_tag("small", attr_set!(class="foo")),
@@ -22,7 +22,7 @@ fn main() {
 
     let ev_iter = events.into_iter(); // .map( ... ) ...
 
-    HtmlStreamer::new(ev_iter).stream(&mut io::stdout()).unwrap();
+    HtmlWriter::new(ev_iter).write_to(&mut io::stdout()).unwrap();
     // will output: "Hello, <small class=\"foo\">world!</small>"
 }
 ```
