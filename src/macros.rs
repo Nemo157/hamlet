@@ -1,6 +1,7 @@
 #[macro_export]
-/// A convenience macro for `AttributeSet` construction. Attributes with hyphens
-/// should be camel-cased.
+/// A convenience macro for `AttributeSet` construction. It does not check for
+/// duplicates in attribute names. Attribute names with hyphens should be
+/// camel-cased.
 ///
 /// # Example
 ///

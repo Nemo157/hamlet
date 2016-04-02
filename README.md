@@ -1,6 +1,31 @@
 # hamlet
 
-Work in progress for a low-level html event stream definition
+A low-level html event stream definition. The purpose of this library is to
+provide a simple API over which higher abstraction can be built on.
+
+## Example
+
+```rust
+#[macro_use]
+extern crate hamlet;
+
+use std::io;
+
+fn main() {
+    use hamlet::{Event, HtmlStreamer};
+    let events = vec![
+        Event::text("Hello, "),
+        Event::start_tag("small", attr_set!(class="foo")),
+        Event::text("world!"),
+        Event::end_tag("small"),
+    ];
+
+    let ev_iter = events.into_iter(); // .map( ... ) ...
+
+    HtmlStreamer::new(ev_iter).stream(&mut io::stdout()).unwrap();
+    // will output: "Hello, <small class=\"foo\">world!</small>"
+}
+```
 
 ## License
 
