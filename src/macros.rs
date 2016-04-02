@@ -17,8 +17,8 @@ macro_rules! attr_set {
         $crate::AttributeSet(::std::borrow::Cow::Borrowed(&[]))
     };
     ($($name:ident = $value:expr),+) => {
-        ($crate::AttributeSet(::std::borrow::Cow::Owned(vec![
+        $crate::AttributeSet(::std::borrow::Cow::Owned(vec![
             $($crate::Attribute::new($crate::util::identifier_to_tag_name(stringify!($name)), $value)),+
-        ])))
+        ]))
     };
 }
