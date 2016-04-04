@@ -28,7 +28,7 @@ fn empty_attr_set() {
 fn single_attr() {
     assert_eq!(&*attr_set!(id = "foo").into_vec(),
                &[
-                   willy::Attribute::new("id", "foo"),
+                   willy::attr::Attribute::new("id", "foo"),
                ]);
 }
 
@@ -36,7 +36,7 @@ fn single_attr() {
 fn multi_attr() {
     assert_eq!(&*attr_set!(id = "foo", class = "bar").into_vec(),
                &[
-                   willy::Attribute::new("id", "foo"),
-                   willy::Attribute::new("class", "bar"),
+                   willy::attr::Attribute::new("id", "foo"),
+                   willy::attr::Attribute::new("class", "bar"),
                ]);
 }

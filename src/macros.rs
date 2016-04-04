@@ -14,11 +14,11 @@
 /// ```
 macro_rules! attr_set {
     () => {
-        $crate::AttributeSet::empty()
+        $crate::attr::AttributeSet::empty()
     };
     ($($name:ident = $value:expr),+) => {
-        $crate::AttributeSet::from_vec(vec![
-            $($crate::Attribute::new($crate::util::identifier_to_tag_name(stringify!($name)), $value)),+
+        $crate::attr::AttributeSet::from_vec(vec![
+            $($crate::attr::Attribute::new($crate::util::identifier_to_tag_name(stringify!($name)), $value)),+
         ])
     };
 }

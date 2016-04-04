@@ -15,22 +15,22 @@ use escape::Escaped;
 /// # Examples
 ///
 /// ```rust
-/// let attr = hamlet::Attribute::new("id", "foo");
+/// let attr = hamlet::attr::Attribute::new("id", "foo");
 /// assert_eq!(format!("{}", attr), "id=\"foo\"");
 /// ```
 ///
 /// ```rust
-/// let attr = hamlet::Attribute::new("id", "bar & baz");
+/// let attr = hamlet::attr::Attribute::new("id", "bar & baz");
 /// assert_eq!(format!("{}", attr), "id=\"bar &amp; baz\"");
 /// ```
 ///
 /// ```rust
-/// let attr = hamlet::Attribute::new("invalid=id", "foo");
+/// let attr = hamlet::attr::Attribute::new("invalid=id", "foo");
 /// assert_eq!(format!("{}", attr), "invalid=id=\"foo\"");
 /// ```
 ///
 /// ```rust
-/// let attr = hamlet::Attribute::new("checked", "");
+/// let attr = hamlet::attr::Attribute::new("checked", "");
 /// assert_eq!(format!("{}", attr), "checked");
 /// ```
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -53,11 +53,13 @@ impl<'a> Attribute<'a> {
     ///
     /// ```rust
     /// use std::borrow::Cow;
+    /// use hamlet::attr::Attribute;
+    ///
     /// let foo = "foo".to_owned();
     /// let foo2 = foo.clone();
     /// assert_eq!(
-    ///     hamlet::Attribute::new("id", foo),
-    ///     hamlet::Attribute {
+    ///     Attribute::new("id", foo),
+    ///     Attribute {
     ///         name: Cow::Borrowed("id"),
     ///         value: Cow::Owned(foo2),
     ///     });

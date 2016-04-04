@@ -1,7 +1,7 @@
 use std::fmt;
 use std::borrow::Cow;
 
-use AttributeSet;
+use attr::AttributeSet;
 use escape::Escaped;
 
 #[derive(Clone, Debug)]
