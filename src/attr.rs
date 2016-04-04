@@ -197,13 +197,25 @@ impl<'a> AttributeSet<'a> {
             None
         }
     }
+
+    pub fn iter<'b>(&'b self) -> Iter<'b, 'a> {
+        Iter {
+            inner: self.0.as_ref(),
+            index: 0,
+        }
+    }
 }
 
-impl<'a> fmt::Display for AttributeSet<'a> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        for attr in self.0.iter() {
-            try!(write!(f, " {}", attr));
-        }
-        Ok(())
+pub struct Iter<'b, 'a: 'b> {
+    inner: &'b [Attribute<'a>],
+    index: usize,
+}
+
+impl<'a, 'b> Iterator for Iter<'b, 'a> {
+    type Item = &'b Attribute<'a>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.index += 1;
+        self.inner.get(self.index - 1)
     }
 }

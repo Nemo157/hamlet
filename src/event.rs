@@ -68,10 +68,14 @@ impl<'a> fmt::Display for Event<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Event::StartTag { ref name, ref attrs, self_closing } => {
+                try!(write!(f, "<{}", name));
+                for attr in attrs.iter() {
+                    try!(write!(f, " {}", attr));
+                }
                 if self_closing {
-                    write!(f, "<{}{} />", name, attrs)
+                    write!(f, " />")
                 } else {
-                    write!(f, "<{}{}>", name, attrs)
+                    write!(f, ">")
                 }
             }
             Event::EndTag { ref name } => write!(f, "</{}>", name),
