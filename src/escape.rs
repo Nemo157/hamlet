@@ -5,7 +5,7 @@ fn escape_char<'a>(c: char) -> Option<&'a str> {
         '<' => Some("&lt;"),
         '>' => Some("&gt;"),
         '"' => Some("&quot;"),
-        '\'' => Some("&apos;"),
+        '\'' => Some("&#39;"),
         '&' => Some("&amp;"),
         _ => None,
     }
@@ -36,6 +36,6 @@ mod tests {
         let s = "escape 'me' & \"you\"";
         let mut es = String::new();
         write!(es, "{}", super::Escaped(&s)).unwrap();
-        assert_eq!(es, "escape &apos;me&apos; &amp; &quot;you&quot;");
+        assert_eq!(es, "escape &#39;me&#39; &amp; &quot;you&quot;");
     }
 }
