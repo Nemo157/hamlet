@@ -1,7 +1,7 @@
 # hamlet
 
-A low-level html event stream definition. The purpose of this library is to
-provide a simple API over which higher abstraction can be built on.
+Provides event definitions for HTML stream processing. The goal of this library
+is to provide a simple API over which higher abstraction can be built on.
 
 ## Example
 
@@ -9,10 +9,10 @@ provide a simple API over which higher abstraction can be built on.
 #[macro_use]
 extern crate hamlet;
 
-use std::io;
+use std::fmt::Write;
 
 fn main() {
-    use hamlet::{Event, HtmlWriter};
+    use hamlet::Event;
     let events = vec![
         Event::text("Hello, "),
         Event::start_tag("small", attr_set!(class="foo")),
@@ -20,10 +20,12 @@ fn main() {
         Event::end_tag("small"),
     ];
 
-    let ev_iter = events.into_iter(); // .map( ... ) ...
+    let mut html = String::from("");
+    for event in events {
+        write!(html, "{}", event);
+    }
 
-    HtmlWriter::new(ev_iter).write_to(&mut io::stdout()).unwrap();
-    // will output: "Hello, <small class=\"foo\">world!</small>"
+    assert_eq!(html, "Hello, <small class=\"foo\">world!</small>");
 }
 ```
 
