@@ -9,7 +9,7 @@
 /// # #[macro_use] extern crate hamlet;
 /// # fn main() {
 /// let attrs = attr_set!(dataFoo = "bar");
-/// assert_eq!(attrs.get_value("data-foo"), Some("bar"));
+/// assert_eq!(attrs.get("data-foo"), Some("bar"));
 /// # }
 /// ```
 macro_rules! attr_set {

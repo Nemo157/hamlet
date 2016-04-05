@@ -118,7 +118,7 @@ impl<'a> AttributeSet<'a> {
     /// # #[macro_use] extern crate hamlet;
     /// # fn main() {
     /// let attrs = attr_set!(id = "foo");
-    /// assert_eq!(attrs.get_value("id"), Some("foo"));
+    /// assert_eq!(attrs.get("id"), Some("foo"));
     /// # }
     /// ```
     ///
@@ -126,10 +126,10 @@ impl<'a> AttributeSet<'a> {
     /// # #[macro_use] extern crate hamlet;
     /// # fn main() {
     /// let attrs = attr_set!(id = "foo");
-    /// assert_eq!(attrs.get_value("class"), None);
+    /// assert_eq!(attrs.get("class"), None);
     /// # }
     /// ```
-    pub fn get_value<S>(&self, name: S) -> Option<&str>
+    pub fn get<S>(&self, name: S) -> Option<&str>
         where S: AsRef<str>
     {
         self.0.iter().find(|attr| attr.name == name.as_ref()).map(|a| a.value.as_ref())
@@ -148,7 +148,7 @@ impl<'a> AttributeSet<'a> {
     ///
     /// attrs.set("id", "bar");
     ///
-    /// assert_eq!(attrs.get_value("id"), Some("bar"));
+    /// assert_eq!(attrs.get("id"), Some("bar"));
     /// # }
     /// ```
     ///
@@ -159,7 +159,7 @@ impl<'a> AttributeSet<'a> {
     ///
     /// attrs.set("class", "bar");
     ///
-    /// assert_eq!(attrs.get_value("class"), Some("bar"));
+    /// assert_eq!(attrs.get("class"), Some("bar"));
     /// # }
     /// ```
     pub fn set<N, V>(&mut self, name: N, value: V)
