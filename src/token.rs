@@ -1,14 +1,14 @@
 use std::fmt;
 use std::borrow::Cow;
 
-use attr::AttributeSet;
+use attr::AttributeList;
 use escape::Escaped;
 
 #[derive(Clone, Debug)]
 pub enum Token<'a> {
     StartTag {
         name: Cow<'a, str>,
-        attrs: AttributeSet<'a>,
+        attrs: AttributeList<'a>,
         /// Marker indicating self-closing tags such as `<br />`
         self_closing: bool,
     },
@@ -22,7 +22,7 @@ pub enum Token<'a> {
 }
 
 impl<'a> Token<'a> {
-    pub fn start_tag<S>(name: S, attrs: AttributeSet<'a>) -> Token<'a>
+    pub fn start_tag<S>(name: S, attrs: AttributeList<'a>) -> Token<'a>
         where S: Into<Cow<'a, str>>
     {
         Token::StartTag {

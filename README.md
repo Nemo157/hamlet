@@ -15,7 +15,7 @@ fn main() {
     use hamlet::Token;
     let tokens = vec![
         Token::text("Hello, "),
-        Token::start_tag("small", attr_set!(class="foo")),
+        Token::start_tag("small", attrs!(class="foo")),
         Token::text("world!"),
         Token::end_tag("small"),
     ];

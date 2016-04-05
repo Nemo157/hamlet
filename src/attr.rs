@@ -46,8 +46,8 @@ impl<'a> Attribute<'a> {
     /// Generally this shouldn't be used directly by end users, it's likely
     /// that there are builder APIs or macros available that make attribute
     /// construction easier, for example the modification methods on
-    /// [`AttributeSet`](struct.AttributeSet.html#methods) or the
-    /// [`attr_set!`](macro.attr_set!.html) macro.
+    /// [`AttributeList`](struct.AttributeList.html#methods) or the
+    /// [`attrs!`](macro.attrs!.html) macro.
     ///
     /// # Examples
     ///
@@ -86,24 +86,24 @@ impl<'a> fmt::Display for Attribute<'a> {
 }
 
 #[derive(Clone, Debug)]
-/// A set of [`Attribute`](./struct.Attribute.html)s.
+/// A list of [`Attribute`](./struct.Attribute.html)s.
 ///
-/// This is stored as a plain slice instead of a set as in most cases it will
+/// This is stored as a plain list instead of a set as in most cases it will
 /// be a small collection over which linear search will be more efficient.
-pub struct AttributeSet<'a>(Cow<'a, [Attribute<'a>]>);
+pub struct AttributeList<'a>(Cow<'a, [Attribute<'a>]>);
 
-impl<'a> AttributeSet<'a> {
-    /// Return an empty `AttributeSet`
-    pub fn empty() -> AttributeSet<'a> {
-        AttributeSet(Cow::Borrowed(&[]))
+impl<'a> AttributeList<'a> {
+    /// Return an empty `AttributeList`
+    pub fn empty() -> AttributeList<'a> {
+        AttributeList(Cow::Borrowed(&[]))
     }
 
     /// Note that this does not check for duplicate attribute names. Generally,
     /// end users are not expected to call this method, and instead use
     /// high-level builder APIs or macros available to make construction easier,
-    /// such as the provided [`attr_set!`](./macro.attr_set!.html) macro.
-    pub fn from_vec(attrs: Vec<Attribute<'a>>) -> AttributeSet<'a> {
-        AttributeSet(Cow::Owned(attrs))
+    /// such as the provided [`attrs!`](./macro.attrs!.html) macro.
+    pub fn from_vec(attrs: Vec<Attribute<'a>>) -> AttributeList<'a> {
+        AttributeList(Cow::Owned(attrs))
     }
 
     pub fn into_vec(self) -> Vec<Attribute<'a>> {
@@ -117,7 +117,7 @@ impl<'a> AttributeSet<'a> {
     /// ```rust
     /// # #[macro_use] extern crate hamlet;
     /// # fn main() {
-    /// let attrs = attr_set!(id = "foo");
+    /// let attrs = attrs!(id = "foo");
     /// assert_eq!(attrs.get("id"), Some("foo"));
     /// # }
     /// ```
@@ -125,7 +125,7 @@ impl<'a> AttributeSet<'a> {
     /// ```rust
     /// # #[macro_use] extern crate hamlet;
     /// # fn main() {
-    /// let attrs = attr_set!(id = "foo");
+    /// let attrs = attrs!(id = "foo");
     /// assert_eq!(attrs.get("class"), None);
     /// # }
     /// ```
@@ -144,7 +144,7 @@ impl<'a> AttributeSet<'a> {
     /// ```rust
     /// # #[macro_use] extern crate hamlet;
     /// # fn main() {
-    /// let mut attrs = attr_set!(id = "foo");
+    /// let mut attrs = attrs!(id = "foo");
     ///
     /// attrs.set("id", "bar");
     ///
@@ -155,7 +155,7 @@ impl<'a> AttributeSet<'a> {
     /// ```rust
     /// # #[macro_use] extern crate hamlet;
     /// # fn main() {
-    /// let mut attrs = attr_set!(id = "foo");
+    /// let mut attrs = attrs!(id = "foo");
     ///
     /// attrs.set("class", "bar");
     ///
@@ -183,7 +183,7 @@ impl<'a> AttributeSet<'a> {
     /// ```rust
     /// # #[macro_use] extern crate hamlet;
     /// # fn main() {
-    /// let mut attrs = attr_set!(id = "foo");
+    /// let mut attrs = attrs!(id = "foo");
     ///
     /// assert_eq!(attrs.remove("id").map(|a| a.value).unwrap().as_ref(), "foo");
     /// # }

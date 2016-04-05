@@ -20,13 +20,13 @@ extern crate hamlet as willy;
 // paths.
 
 #[test]
-fn empty_attr_set() {
-    assert_eq!(&*attr_set!().into_vec(), &[]);
+fn empty_attrs() {
+    assert_eq!(&*attrs!().into_vec(), &[]);
 }
 
 #[test]
 fn single_attr() {
-    assert_eq!(&*attr_set!(id = "foo").into_vec(),
+    assert_eq!(&*attrs!(id = "foo").into_vec(),
                &[
                    willy::attr::Attribute::new("id", "foo"),
                ]);
@@ -34,7 +34,7 @@ fn single_attr() {
 
 #[test]
 fn multi_attr() {
-    assert_eq!(&*attr_set!(id = "foo", class = "bar").into_vec(),
+    assert_eq!(&*attrs!(id = "foo", class = "bar").into_vec(),
                &[
                    willy::attr::Attribute::new("id", "foo"),
                    willy::attr::Attribute::new("class", "bar"),
