@@ -1,13 +1,14 @@
 [package]
 name = "hamlet"
-version = "0.1.0"
+version = "0.2.0"
 authors = [
     "Wim Looman <wim@nemo157.com>",
     "critiqjo <john.ch.fr@gmail.com>"
 ]
-description = "Work in progress for a low-level html event stream definition"
+description = "Html token definitions for stream processing"
 
 readme = "README.md"
+repository = "https://github.com/Nemo157/hamlet"
 keywords = ["html", "hamlet"]
 
 license = "MIT/Apache-2.0"
