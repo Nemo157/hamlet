@@ -5,6 +5,14 @@ use attr::AttributeList;
 use escape::Escaped;
 
 #[derive(Clone, Debug)]
+/// An HTML token. By convention, `Token::Text` should be preferred over
+/// `Token::RawText` when a piece of text can be represented by both. For
+/// instance, use `Token::Text` when tokenizing whitespaces or line-breaks, but
+/// use `Token::RawText` for representing all text inside `<style>` tag.
+///
+/// When `Display`ing a `Token`, the output stream is assumed to be Unicode, and
+/// therefore only five characters are escaped: `&`, `<`, `>`, `"`, and `'`
+/// ([ref](http://stackoverflow.com/a/7382028)).
 pub enum Token<'a> {
     StartTag {
         name: Cow<'a, str>,
@@ -19,8 +27,11 @@ pub enum Token<'a> {
     Text(Cow<'a, str>),
     /// The text contained will be `Display`ed as-is.
     RawText(Cow<'a, str>),
-    /// For text contained within `<!--` and `-->`
+    /// Comments contained within `<!--` and `-->`. No validation is done to
+    /// ensure that the text does not contain `-->`.
     Comment(Cow<'a, str>),
+    /// The HTML5 DOCTYPE declaration
+    DOCTYPE,
 }
 
 impl<'a> Token<'a> {
@@ -91,6 +102,7 @@ impl<'a> fmt::Display for Token<'a> {
             Token::Text(ref text) => write!(f, "{}", Escaped(text)),
             Token::RawText(ref text) => write!(f, "{}", text),
             Token::Comment(ref text) => write!(f, "<!--{}-->", text),
+            Token::DOCTYPE => write!(f, "<!DOCTYPE html>"),
         }
     }
 }
@@ -116,5 +128,7 @@ mod tests {
 
         let comment = Token::comment("Multi\nline\ncomment");
         assert_eq!(format!("{}", comment), "<!--Multi\nline\ncomment-->");
+
+        assert_eq!(format!("{}", Token::DOCTYPE), "<!DOCTYPE html>");
     }
 }
