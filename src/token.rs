@@ -5,7 +5,7 @@ use attr::AttributeSet;
 use escape::Escaped;
 
 #[derive(Clone, Debug)]
-pub enum Event<'a> {
+pub enum Token<'a> {
     StartTag {
         name: Cow<'a, str>,
         attrs: AttributeSet<'a>,
@@ -17,43 +17,44 @@ pub enum Event<'a> {
     },
     /// The text contained will be escaped on `Display`.
     Text(Cow<'a, str>),
-    RawHtml(Cow<'a, str>),
+    /// The text contained will be `Display`ed as-is.
+    RawText(Cow<'a, str>),
 }
 
-impl<'a> Event<'a> {
-    pub fn start_tag<S>(name: S, attrs: AttributeSet<'a>) -> Event<'a>
+impl<'a> Token<'a> {
+    pub fn start_tag<S>(name: S, attrs: AttributeSet<'a>) -> Token<'a>
         where S: Into<Cow<'a, str>>
     {
-        Event::StartTag {
+        Token::StartTag {
             name: name.into(),
             attrs: attrs,
             self_closing: false,
         }
     }
 
-    pub fn end_tag<S>(name: S) -> Event<'a>
+    pub fn end_tag<S>(name: S) -> Token<'a>
         where S: Into<Cow<'a, str>>
     {
-        Event::EndTag { name: name.into() }
+        Token::EndTag { name: name.into() }
     }
 
-    pub fn text<S>(s: S) -> Event<'a>
+    pub fn text<S>(s: S) -> Token<'a>
         where S: Into<Cow<'a, str>>
     {
-        Event::Text(s.into())
+        Token::Text(s.into())
     }
 
-    pub fn raw_html<S>(s: S) -> Event<'a>
+    pub fn raw_text<S>(s: S) -> Token<'a>
         where S: Into<Cow<'a, str>>
     {
-        Event::RawHtml(s.into())
+        Token::RawText(s.into())
     }
 
-    /// If `self` is a `StartTag`, returns the `Event` after setting
+    /// If `self` is a `StartTag`, returns the `Token` after setting
     /// `self_closing` to `true`; otherwise, it is a no-op.
-    pub fn closed(self) -> Event<'a> {
-        if let Event::StartTag { name, attrs, .. } = self {
-            Event::StartTag {
+    pub fn closed(self) -> Token<'a> {
+        if let Token::StartTag { name, attrs, .. } = self {
+            Token::StartTag {
                 name: name,
                 attrs: attrs,
                 self_closing: true,
@@ -64,10 +65,10 @@ impl<'a> Event<'a> {
     }
 }
 
-impl<'a> fmt::Display for Event<'a> {
+impl<'a> fmt::Display for Token<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Event::StartTag { ref name, ref attrs, self_closing } => {
+            Token::StartTag { ref name, ref attrs, self_closing } => {
                 try!(write!(f, "<{}", name));
                 for attr in attrs.iter() {
                     try!(write!(f, " {}", attr));
@@ -78,9 +79,9 @@ impl<'a> fmt::Display for Event<'a> {
                     write!(f, ">")
                 }
             }
-            Event::EndTag { ref name } => write!(f, "</{}>", name),
-            Event::Text(ref text) => write!(f, "{}", Escaped(text)),
-            Event::RawHtml(ref html) => write!(f, "{}", html),
+            Token::EndTag { ref name } => write!(f, "</{}>", name),
+            Token::Text(ref text) => write!(f, "{}", Escaped(text)),
+            Token::RawText(ref text) => write!(f, "{}", text),
         }
     }
 }

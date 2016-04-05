@@ -1,6 +1,6 @@
 # hamlet
 
-Provides event definitions for HTML stream processing. The goal of this library
+Provides token definitions for HTML stream processing. The goal of this library
 is to provide a simple API over which higher abstraction can be built on.
 
 ## Example
@@ -12,17 +12,17 @@ extern crate hamlet;
 use std::fmt::Write;
 
 fn main() {
-    use hamlet::Event;
-    let events = vec![
-        Event::text("Hello, "),
-        Event::start_tag("small", attr_set!(class="foo")),
-        Event::text("world!"),
-        Event::end_tag("small"),
+    use hamlet::Token;
+    let tokens = vec![
+        Token::text("Hello, "),
+        Token::start_tag("small", attr_set!(class="foo")),
+        Token::text("world!"),
+        Token::end_tag("small"),
     ];
 
     let mut html = String::from("");
-    for event in events {
-        write!(html, "{}", event);
+    for token in tokens {
+        write!(html, "{}", token);
     }
 
     assert_eq!(html, "Hello, <small class=\"foo\">world!</small>");
