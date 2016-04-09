@@ -5,37 +5,45 @@ use escape::Escaped;
 
 /// An [HTML attribute](https://www.w3.org/TR/html/syntax.html#attributes-0).
 ///
-/// The name for the attribute will not be validated, you must ensure it meets
-/// the requirements specified in the spec yourself.
-///
-/// The value for the attribute will be escaped automatically. If it is an
-/// empty string then the attribute will be written with the 'Empty attribute
-/// syntax'.
-///
 /// # Examples
 ///
 /// ```rust
 /// let attr = hamlet::attr::Attribute::new("id", "foo");
 /// assert_eq!(format!("{}", attr), "id=\"foo\"");
 /// ```
-///
-/// ```rust
-/// let attr = hamlet::attr::Attribute::new("id", "bar & baz");
-/// assert_eq!(format!("{}", attr), "id=\"bar &amp; baz\"");
-/// ```
-///
-/// ```rust
-/// let attr = hamlet::attr::Attribute::new("invalid=id", "foo");
-/// assert_eq!(format!("{}", attr), "invalid=id=\"foo\"");
-/// ```
-///
-/// ```rust
-/// let attr = hamlet::attr::Attribute::new("checked", "");
-/// assert_eq!(format!("{}", attr), "checked");
-/// ```
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Attribute<'a> {
+    /// The [attribute's name][name]. The value of this field will not be
+    /// validated, you must ensure it meets the requirements specified in the
+    /// spec yourself.
+    ///
+    /// [name]: https://www.w3.org/TR/html/syntax.html#syntax-attribute-name
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let attr = hamlet::attr::Attribute::new("invalid=id", "foo");
+    /// assert_eq!(format!("{}", attr), "invalid=id=\"foo\"");
+    /// ```
     pub name: Cow<'a, str>,
+
+    /// The [attribute's value][value]. This field will be escaped
+    /// automatically, if it is an empty string then the attribute will be
+    /// written with the 'Empty attribute syntax'.
+    ///
+    /// [value]: https://www.w3.org/TR/html/syntax.html#syntax-attribute-value
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let attr = hamlet::attr::Attribute::new("id", "bar & baz");
+    /// assert_eq!(format!("{}", attr), "id=\"bar &amp; baz\"");
+    /// ```
+    ///
+    /// ```rust
+    /// let attr = hamlet::attr::Attribute::new("checked", "");
+    /// assert_eq!(format!("{}", attr), "checked");
+    /// ```
     pub value: Cow<'a, str>,
 }
 
