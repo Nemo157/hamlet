@@ -3,7 +3,7 @@
 set -e
 
 : ${TRAVIS:?'This should only be run on Travis CI'}
-GITHUB_TOKEN=${1:?'Must provide github token'}
+: ${GITHUB_TOKEN:?'Must provide github token'}
 REPO_SLUG=${2:?'Must provide repo slug'}
 
 echo "machine github.com login $GITHUB_TOKEN password x-oauth-basic" >> ~/.netrc
