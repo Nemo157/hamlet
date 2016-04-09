@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["identifier_to_tag_name","Internally used by the macro to hyphenate camel-cased attribute names."]]});
