@@ -1,6 +1,6 @@
 [package]
 name = "hamlet"
-version = "0.2.0"
+version = "0.2.1"
 authors = [
     "Wim Looman <wim@nemo157.com>",
     "critiqjo <john.ch.fr@gmail.com>"
@@ -10,7 +10,7 @@ description = "Html token definitions for stream processing"
 readme = "README.md"
 homepage = "https://nemo157.com/hamlet"
 repository = "https://github.com/Nemo157/hamlet"
-documentation = "https://nemo157.com/hamlet/docs/0.2.0/hamlet"
+documentation = "https://nemo157.com/hamlet/docs/0.2.1/hamlet"
 
 keywords = ["html", "hamlet"]
 
