@@ -5,32 +5,58 @@ use attr::AttributeList;
 use escape::Escaped;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-/// An HTML token. By convention, `Token::Text` should be preferred over
-/// `Token::RawText` when a piece of text can be represented by both. For
-/// instance, use `Token::Text` when tokenizing whitespaces or line-breaks, but
-/// use `Token::RawText` for representing all text inside `<style>` tag.
+/// An HTML token, these are representations of everything needed to generate
+/// an [HTML document](https://www.w3.org/TR/html/syntax.html#writing).
+///
+/// By convention, [`Token::Text`](#variant.Text) should be preferred over
+/// [`Token::RawText`](#variant.RawText) when a piece of text can be
+/// represented by both. For instance, use `Text` when tokenizing whitespaces
+/// or line-breaks, but use `RawText` for representing all text inside
+/// a `<style>` tag.
 ///
 /// When `Display`ing a `Token`, the output stream is assumed to be Unicode, and
 /// therefore only five characters are escaped: `&`, `<`, `>`, `"`, and `'`
 /// ([ref](http://stackoverflow.com/a/7382028)).
 pub enum Token<'a> {
+    /// A [start tag](https://www.w3.org/TR/html/syntax.html#syntax-start-tag)
+    /// token.
     StartTag {
+        /// The element's [tag
+        /// name](https://www.w3.org/TR/html/syntax.html#syntax-tag-name).
         name: Cow<'a, str>,
+
+        /// Any attributes for the start tag.
         attrs: AttributeList<'a>,
-        /// Marker indicating self-closing tags such as `<br />`
+
+        /// Marker indicating the tag should be self-closing, such as `<br />`
+        /// (although `br` is a [void
+        /// element](https://www.w3.org/TR/html/syntax.html#void-elements) so
+        /// this has no effect on it).
         self_closing: bool,
     },
+
+    /// An [end tag](https://www.w3.org/TR/html/syntax.html#syntax-end-tag)
+    /// token.
     EndTag {
+        /// The element's [tag
+        /// name](https://www.w3.org/TR/html/syntax.html#syntax-tag-name).
         name: Cow<'a, str>,
     },
+
     /// The text contained will be escaped on `Display`.
     Text(Cow<'a, str>),
+
     /// The text contained will be `Display`ed as-is.
     RawText(Cow<'a, str>),
+
     /// Comments contained within `<!--` and `-->`. No validation is done to
-    /// ensure that the text does not contain `-->`.
+    /// ensure that the text conforms to the [html comment
+    /// syntax](https://www.w3.org/TR/html/syntax.html#syntax-comments).
     Comment(Cow<'a, str>),
-    /// The HTML5 DOCTYPE declaration
+
+    /// The [HTML5 DOCTYPE
+    /// declaration](https://www.w3.org/TR/html/syntax.html#syntax-doctype)
+    /// (`<!DOCTYPE html>`)
     DOCTYPE,
 }
 
