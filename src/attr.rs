@@ -106,6 +106,26 @@ impl<'a> AttributeList<'a> {
         AttributeList(Cow::Owned(attrs))
     }
 
+    /// Pull all attributes out of this collection, useful if you need to
+    /// perform some more extensive modification.
+    ///
+    /// ```rust
+    /// # #[macro_use] extern crate hamlet;
+    /// # fn main() {
+    /// use hamlet::attr::{ Attribute, AttributeList };
+    /// let attrs = attrs!(dataBar = "bar", dataBaz = "baz");
+    ///
+    /// // Namespace all data attributes for some reason.
+    /// let attrs = AttributeList::from_vec(
+    ///     attrs.into_vec().into_iter()
+    ///         .map(|Attribute { name, value }| {
+    ///             Attribute::new(name.replace("data-", "data-foo-"), value)
+    ///         })
+    ///         .collect());
+    ///
+    /// assert_eq!(attrs.get("data-foo-bar"), Some("bar"));
+    /// # }
+    /// ```
     pub fn into_vec(self) -> Vec<Attribute<'a>> {
         self.0.into_owned()
     }
@@ -200,6 +220,7 @@ impl<'a> AttributeList<'a> {
         }
     }
 
+    /// Returns an iterator over the list.
     pub fn iter<'b>(&'b self) -> Iter<'b, 'a> {
         Iter {
             inner: self.0.as_ref(),
@@ -208,6 +229,7 @@ impl<'a> AttributeList<'a> {
     }
 }
 
+/// Immutable [`AttributeList`](./struct.AttributeList.html) iterator.
 pub struct Iter<'b, 'a: 'b> {
     inner: &'b [Attribute<'a>],
     index: usize,
