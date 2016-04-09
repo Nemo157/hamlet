@@ -28,6 +28,8 @@
 //! }
 //! ```
 
+#![warn(missing_docs)]
+
 pub mod util;
 
 #[macro_use]
