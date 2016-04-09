@@ -89,7 +89,7 @@ impl<'a> fmt::Display for Attribute<'a> {
 /// A list of [`Attribute`](./struct.Attribute.html)s.
 ///
 /// This is stored as a plain list instead of a set as in most cases it will
-/// be a small collection over which linear search will be more efficient.
+/// be a small collection over which a linear search will be more efficient.
 pub struct AttributeList<'a>(Cow<'a, [Attribute<'a>]>);
 
 impl<'a> AttributeList<'a> {
@@ -136,8 +136,8 @@ impl<'a> AttributeList<'a> {
     }
 
     /// Unconditionally set an attribute to a value. If the attribute already
-    /// exists in the set will update its value, otherwise will add a new
-    /// attribute to the set.
+    /// exists in the list, update its value, otherwise add a new attribute to
+    /// the list.
     ///
     /// # Examples
     ///
@@ -176,7 +176,7 @@ impl<'a> AttributeList<'a> {
         }
     }
 
-    /// Removes and returns the attribute it if there was one.
+    /// Removes and returns the attribute if there was one.
     ///
     /// # Examples
     ///
