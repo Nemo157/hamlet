@@ -8,7 +8,10 @@ authors = [
 description = "Html token definitions for stream processing"
 
 readme = "README.md"
+homepage = "https://nemo157.com/hamlet"
 repository = "https://github.com/Nemo157/hamlet"
+documentation = "https://nemo157.com/hamlet/docs/0.2.0/hamlet"
+
 keywords = ["html", "hamlet"]
 
 license = "MIT/Apache-2.0"
