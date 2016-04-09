@@ -10,6 +10,22 @@ matrix:
   allow_failures:
     - rust: nightly
 
+env:
+  global:
+    - secure: pTlR6FCGhfVffa/q85naOZF/3R4u5xiiD9I/09SbQrkl8LgWfURrkNaiVDXtZMJJVt1MwiwGocGaWc9dScVryA9dzJBP0o/1qk0UrkLBFq4QcVgDkGcgA6xOTC/l910qRKQqTzyHiMYXMWxDCM/KxxYkMgBGcgRW0uZHIaIqgWO0lnSGFA1HBfvpWptwpRLGufwTq6RYBlXxslLjzuA1gaFA1nJR4iAhvHLzOfE5cfw5mnUkMqYzcwR4/y9/kMpgZJgVTDuYP1OC3V8STLKstrANzAwaKcwmOW3Ob4cwiEzp7DRD2PpuGdbMj3gR5WU0WIxLtFcFDPouRvzTQChOVbEoUo/DirhAgpTSDcJdKSuKrqeh1N0YLuOXd+2vspNNC1PGoe9BtJgp3I3Y/6gRMrRQF8ipAGtaDPasRRCiNAONpiLOSk8JzUAZIF3D8neZPxjPjBSuzx7caEFBLQ3xeR71A30e1zCeCSwO3mDhRE62iB8GHxuarbhnqqvFaL1iUnrwOVorapPcv1uwdntBJGTCQRuC/IBsqVmIzoTk25e/8qlHVG4JN0YBdMagqSGhX7b9bEHwKgU3zgNLx1dnTrg8aI7ouEXNZE1c77o+kO1ZQ5yyCjyAsZEgcTcwbIBtUnfKTgHmLs/7nq6nHMFQEGbruRGonCcFqRnSKSOI+J8=
+
 script:
   - cargo build --release --verbose
   - cargo test --verbose
+
+before_deploy:
+  - cargo package --verbose
+
+deploy:
+  provider: script
+  script: deploy.sh $TRAVIS_TAG $CRATES_IO_TOKEN
+  skip_cleanup: true
+  on:
+    tags: true
+    all_branches: true
+    condition: "$TRAVIS_RUST_VERSION = stable"
