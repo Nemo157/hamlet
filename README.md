@@ -29,6 +29,11 @@ fn main() {
 }
 ```
 
+## Links
+
+ * Homepage: https://nemo157.com/hamlet
+ * Official Repository: https://github.com/Nemo157/hamlet
+
 ## License
 
 Licensed under either of
