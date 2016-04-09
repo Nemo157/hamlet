@@ -10,6 +10,25 @@ matrix:
   allow_failures:
     - rust: nightly
 
+env:
+  global:
+    - secure: pTlR6FCGhfVffa/q85naOZF/3R4u5xiiD9I/09SbQrkl8LgWfURrkNaiVDXtZMJJVt1MwiwGocGaWc9dScVryA9dzJBP0o/1qk0UrkLBFq4QcVgDkGcgA6xOTC/l910qRKQqTzyHiMYXMWxDCM/KxxYkMgBGcgRW0uZHIaIqgWO0lnSGFA1HBfvpWptwpRLGufwTq6RYBlXxslLjzuA1gaFA1nJR4iAhvHLzOfE5cfw5mnUkMqYzcwR4/y9/kMpgZJgVTDuYP1OC3V8STLKstrANzAwaKcwmOW3Ob4cwiEzp7DRD2PpuGdbMj3gR5WU0WIxLtFcFDPouRvzTQChOVbEoUo/DirhAgpTSDcJdKSuKrqeh1N0YLuOXd+2vspNNC1PGoe9BtJgp3I3Y/6gRMrRQF8ipAGtaDPasRRCiNAONpiLOSk8JzUAZIF3D8neZPxjPjBSuzx7caEFBLQ3xeR71A30e1zCeCSwO3mDhRE62iB8GHxuarbhnqqvFaL1iUnrwOVorapPcv1uwdntBJGTCQRuC/IBsqVmIzoTk25e/8qlHVG4JN0YBdMagqSGhX7b9bEHwKgU3zgNLx1dnTrg8aI7ouEXNZE1c77o+kO1ZQ5yyCjyAsZEgcTcwbIBtUnfKTgHmLs/7nq6nHMFQEGbruRGonCcFqRnSKSOI+J8=
+    - secure: rMU590nAggJr3wB0tBldZdXB46dBK1UfFwMByuyYPJlYx7skao8MVJBS2sbTMiRUUiVF2LsoM2YYuoTRG5FiieXjeH/I8nvI5mpKlkPJounmontSh2zhxfK/NrQihZqZQsLrn7cDra4Ldtz9E7L2ydfj7xskAaeEO1GynCK7Q+UCMSl/HRXEVf4bv2VONzN1k61H9h7d6rk1JF4J5iZkvhvt+j3zWusiO0Y5s8/cj4ZWaXSPyoZUjdaHjwe3P89eXnoGVN8b3cMsXSxZJXxeiPTDp1V81lqsMMHHJdc75LDQujWm9l982ygpljpeaLs7xq8Y5HGWU0vBXlyQA5Xgt02s4Yz+YQ5ABldFsZXD/FQu3R0DfJumNYYoW8GWgJpE9AMYj+ZKsSUZgNxKzAVYsXC/mZXuBDS1hiCDaQSl/3XUqVGjs92GVWBKk1p9qjnTQzDnk8VOCxFSw3le0q7GrPOdm7L1ZrIdVg0Wl/BuBX2CTMUsFJDAbR/J8Fjywl3+p4pDk1hF9ewX7Xl3+TKXwg6CVXmi5cTJXZxdYe6RI+tDfX0DCuvQBiwBJESXhyeLQYI/9wWjzmcBzdqUrULc48xY6sOMmNlJwzVg6FLn7x/1IeNUTcvs51P2VOmYPwDZFt6+m4scoeAD7qvOxaoVD49jI+7TipeR/gHaQj/wpOE=
+
 script:
   - cargo build --release --verbose
   - cargo test --verbose
+
+before_deploy:
+  - cargo package --verbose
+  - cargo doc --release --verbose
+  - ./save_credentials.sh "$GITHUB_TOKEN" "$TRAVIS_REPO_SLUG"
+
+deploy:
+  provider: script
+  script: ./deploy.sh "$TRAVIS_TAG" "$CRATES_IO_TOKEN"
+  skip_cleanup: true
+  on:
+    tags: true
+    all_branches: true
+    condition: "$TRAVIS_RUST_VERSION = stable"
