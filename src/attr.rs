@@ -5,37 +5,45 @@ use escape::Escaped;
 
 /// An [HTML attribute](https://www.w3.org/TR/html/syntax.html#attributes-0).
 ///
-/// The name for the attribute will not be validated, you must ensure it meets
-/// the requirements specified in the spec yourself.
-///
-/// The value for the attribute will be escaped automatically. If it is an
-/// empty string then the attribute will be written with the 'Empty attribute
-/// syntax'.
-///
 /// # Examples
 ///
 /// ```rust
 /// let attr = hamlet::attr::Attribute::new("id", "foo");
 /// assert_eq!(format!("{}", attr), "id=\"foo\"");
 /// ```
-///
-/// ```rust
-/// let attr = hamlet::attr::Attribute::new("id", "bar & baz");
-/// assert_eq!(format!("{}", attr), "id=\"bar &amp; baz\"");
-/// ```
-///
-/// ```rust
-/// let attr = hamlet::attr::Attribute::new("invalid=id", "foo");
-/// assert_eq!(format!("{}", attr), "invalid=id=\"foo\"");
-/// ```
-///
-/// ```rust
-/// let attr = hamlet::attr::Attribute::new("checked", "");
-/// assert_eq!(format!("{}", attr), "checked");
-/// ```
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Attribute<'a> {
+    /// The [attribute's name][name]. The value of this field will not be
+    /// validated, you must ensure it meets the requirements specified in the
+    /// spec yourself.
+    ///
+    /// [name]: https://www.w3.org/TR/html/syntax.html#syntax-attribute-name
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let attr = hamlet::attr::Attribute::new("invalid=id", "foo");
+    /// assert_eq!(format!("{}", attr), "invalid=id=\"foo\"");
+    /// ```
     pub name: Cow<'a, str>,
+
+    /// The [attribute's value][value]. This field will be escaped
+    /// automatically, if it is an empty string then the attribute will be
+    /// written with the 'Empty attribute syntax'.
+    ///
+    /// [value]: https://www.w3.org/TR/html/syntax.html#syntax-attribute-value
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let attr = hamlet::attr::Attribute::new("id", "bar & baz");
+    /// assert_eq!(format!("{}", attr), "id=\"bar &amp; baz\"");
+    /// ```
+    ///
+    /// ```rust
+    /// let attr = hamlet::attr::Attribute::new("checked", "");
+    /// assert_eq!(format!("{}", attr), "checked");
+    /// ```
     pub value: Cow<'a, str>,
 }
 
@@ -85,11 +93,11 @@ impl<'a> fmt::Display for Attribute<'a> {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq)]
 /// A list of [`Attribute`](./struct.Attribute.html)s.
 ///
 /// This is stored as a plain list instead of a set as in most cases it will
-/// be a small collection over which linear search will be more efficient.
+/// be a small collection over which a linear search will be more efficient.
 pub struct AttributeList<'a>(Cow<'a, [Attribute<'a>]>);
 
 impl<'a> AttributeList<'a> {
@@ -106,6 +114,26 @@ impl<'a> AttributeList<'a> {
         AttributeList(Cow::Owned(attrs))
     }
 
+    /// Pull all attributes out of this collection, useful if you need to
+    /// perform some more extensive modification.
+    ///
+    /// ```rust
+    /// # #[macro_use] extern crate hamlet;
+    /// # fn main() {
+    /// use hamlet::attr::{ Attribute, AttributeList };
+    /// let attrs = attrs!(dataBar = "bar", dataBaz = "baz");
+    ///
+    /// // Namespace all data attributes for some reason.
+    /// let attrs = AttributeList::from_vec(
+    ///     attrs.into_vec().into_iter()
+    ///         .map(|Attribute { name, value }| {
+    ///             Attribute::new(name.replace("data-", "data-foo-"), value)
+    ///         })
+    ///         .collect());
+    ///
+    /// assert_eq!(attrs.get("data-foo-bar"), Some("bar"));
+    /// # }
+    /// ```
     pub fn into_vec(self) -> Vec<Attribute<'a>> {
         self.0.into_owned()
     }
@@ -136,8 +164,8 @@ impl<'a> AttributeList<'a> {
     }
 
     /// Unconditionally set an attribute to a value. If the attribute already
-    /// exists in the set will update its value, otherwise will add a new
-    /// attribute to the set.
+    /// exists in the list, update its value, otherwise add a new attribute to
+    /// the list.
     ///
     /// # Examples
     ///
@@ -176,7 +204,7 @@ impl<'a> AttributeList<'a> {
         }
     }
 
-    /// Removes and returns the attribute it if there was one.
+    /// Removes and returns the attribute if there was one.
     ///
     /// # Examples
     ///
@@ -200,6 +228,7 @@ impl<'a> AttributeList<'a> {
         }
     }
 
+    /// Returns an iterator over the list.
     pub fn iter<'b>(&'b self) -> Iter<'b, 'a> {
         Iter {
             inner: self.0.as_ref(),
@@ -208,6 +237,7 @@ impl<'a> AttributeList<'a> {
     }
 }
 
+/// Immutable [`AttributeList`](./struct.AttributeList.html) iterator.
 pub struct Iter<'b, 'a: 'b> {
     inner: &'b [Attribute<'a>],
     index: usize,
@@ -219,5 +249,15 @@ impl<'a, 'b> Iterator for Iter<'b, 'a> {
     fn next(&mut self) -> Option<Self::Item> {
         self.index += 1;
         self.inner.get(self.index - 1)
+    }
+}
+
+impl<'a, 'b> PartialEq<AttributeList<'b>> for AttributeList<'a> {
+    fn eq(&self, other: &AttributeList<'b>) -> bool {
+        let mut left = self.0.iter().collect::<Vec<_>>();
+        let mut right = other.0.iter().collect::<Vec<_>>();
+        left.sort();
+        right.sort();
+        left == right
     }
 }

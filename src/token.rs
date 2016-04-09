@@ -4,37 +4,81 @@ use std::borrow::Cow;
 use attr::AttributeList;
 use escape::Escaped;
 
-#[derive(Clone, Debug)]
-/// An HTML token. By convention, `Token::Text` should be preferred over
-/// `Token::RawText` when a piece of text can be represented by both. For
-/// instance, use `Token::Text` when tokenizing whitespaces or line-breaks, but
-/// use `Token::RawText` for representing all text inside `<style>` tag.
+#[derive(Clone, Debug, PartialEq, Eq)]
+/// An HTML token, these are representations of everything needed to generate
+/// an [HTML document](https://www.w3.org/TR/html/syntax.html#writing).
+///
+/// By convention, [`Token::Text`](#variant.Text) should be preferred over
+/// [`Token::RawText`](#variant.RawText) when a piece of text can be
+/// represented by both. For instance, use `Text` when tokenizing whitespaces
+/// or line-breaks, but use `RawText` for representing all text inside
+/// a `<style>` tag.
 ///
 /// When `Display`ing a `Token`, the output stream is assumed to be Unicode, and
 /// therefore only five characters are escaped: `&`, `<`, `>`, `"`, and `'`
 /// ([ref](http://stackoverflow.com/a/7382028)).
 pub enum Token<'a> {
+    /// A [start tag](https://www.w3.org/TR/html/syntax.html#syntax-start-tag)
+    /// token.
     StartTag {
+        /// The element's [tag
+        /// name](https://www.w3.org/TR/html/syntax.html#syntax-tag-name).
         name: Cow<'a, str>,
+
+        /// Any attributes for the start tag.
         attrs: AttributeList<'a>,
-        /// Marker indicating self-closing tags such as `<br />`
+
+        /// Marker indicating the tag should be self-closing, such as `<br />`
+        /// (although `br` is a [void
+        /// element](https://www.w3.org/TR/html/syntax.html#void-elements) so
+        /// this has no effect on it).
         self_closing: bool,
     },
+
+    /// An [end tag](https://www.w3.org/TR/html/syntax.html#syntax-end-tag)
+    /// token.
     EndTag {
+        /// The element's [tag
+        /// name](https://www.w3.org/TR/html/syntax.html#syntax-tag-name).
         name: Cow<'a, str>,
     },
+
     /// The text contained will be escaped on `Display`.
     Text(Cow<'a, str>),
+
     /// The text contained will be `Display`ed as-is.
     RawText(Cow<'a, str>),
+
     /// Comments contained within `<!--` and `-->`. No validation is done to
-    /// ensure that the text does not contain `-->`.
+    /// ensure that the text conforms to the [html comment
+    /// syntax](https://www.w3.org/TR/html/syntax.html#syntax-comments).
     Comment(Cow<'a, str>),
-    /// The HTML5 DOCTYPE declaration
+
+    /// The [HTML5 DOCTYPE
+    /// declaration](https://www.w3.org/TR/html/syntax.html#syntax-doctype)
+    /// (`<!DOCTYPE html>`)
     DOCTYPE,
 }
 
 impl<'a> Token<'a> {
+    /// Create a [`StartTag`](#variant.StartTag) token with specified element
+    /// name and attributes, use [`closed()`](#method.closed) to set the
+    /// [`self_closing`](#variant.StartTag.field.self_closing) flag.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # #[macro_use] extern crate hamlet;
+    /// # fn main() {
+    /// assert_eq!(
+    ///     hamlet::Token::start_tag("script", attrs!()),
+    ///     hamlet::Token::StartTag {
+    ///         name: std::borrow::Cow::Borrowed("script"),
+    ///         attrs: attrs!(),
+    ///         self_closing: false,
+    ///     });
+    /// # }
+    /// ```
     pub fn start_tag<S>(name: S, attrs: AttributeList<'a>) -> Token<'a>
         where S: Into<Cow<'a, str>>
     {
@@ -45,32 +89,96 @@ impl<'a> Token<'a> {
         }
     }
 
+    /// Create an [`EndTag`](#variant.EndTag) token with specified element
+    /// name.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// assert_eq!(
+    ///     hamlet::Token::end_tag("script"),
+    ///     hamlet::Token::EndTag {
+    ///         name: std::borrow::Cow::Borrowed("script"),
+    ///     });
+    /// ```
     pub fn end_tag<S>(name: S) -> Token<'a>
         where S: Into<Cow<'a, str>>
     {
         Token::EndTag { name: name.into() }
     }
 
+    /// Create a [`Text`](#variant.Text) token with specified text content.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// assert_eq!(
+    ///     hamlet::Token::text("hello world"),
+    ///     hamlet::Token::Text(std::borrow::Cow::Borrowed("hello world")));
+    /// ```
     pub fn text<S>(s: S) -> Token<'a>
         where S: Into<Cow<'a, str>>
     {
         Token::Text(s.into())
     }
 
+
+    /// Create a [`RawText`](#variant.RawText) token with specified raw text
+    /// content.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// assert_eq!(
+    ///     hamlet::Token::raw_text("hello world"),
+    ///     hamlet::Token::RawText(std::borrow::Cow::Borrowed("hello world")));
+    /// ```
     pub fn raw_text<S>(s: S) -> Token<'a>
         where S: Into<Cow<'a, str>>
     {
         Token::RawText(s.into())
     }
 
+    /// Create a [`Comment`](#variant.Comment) token with specified comment
+    /// content.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// assert_eq!(
+    ///     hamlet::Token::comment("hello world"),
+    ///     hamlet::Token::Comment(std::borrow::Cow::Borrowed("hello world")));
+    /// ```
     pub fn comment<S>(s: S) -> Token<'a>
         where S: Into<Cow<'a, str>>
     {
         Token::Comment(s.into())
     }
 
-    /// If `self` is a `StartTag`, returns the `Token` after setting
-    /// `self_closing` to `true`; otherwise, it is a no-op.
+    /// If `self` is a [`StartTag`](#variant.StartTag), returns a copy with
+    /// [`self_closing`](#variant.StartTag.field.self_closing) set to `true`;
+    /// otherwise, returns `self`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # #[macro_use] extern crate hamlet;
+    /// # fn main() {
+    /// assert_eq!(
+    ///     hamlet::Token::start_tag("br", attrs!()).closed(),
+    ///     hamlet::Token::StartTag {
+    ///         name: std::borrow::Cow::Borrowed("br"),
+    ///         attrs: attrs!(),
+    ///         self_closing: true,
+    ///     });
+    /// # }
+    /// ```
+    ///
+    /// ```rust
+    /// assert_eq!(
+    ///     hamlet::Token::text("hello world").closed(),
+    ///     hamlet::Token::Text(std::borrow::Cow::Borrowed("hello world")));
+    /// ```
     pub fn closed(self) -> Token<'a> {
         if let Token::StartTag { name, attrs, .. } = self {
             Token::StartTag {
