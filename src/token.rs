@@ -4,7 +4,7 @@ use std::borrow::Cow;
 use attr::AttributeList;
 use escape::Escaped;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 /// An HTML token. By convention, `Token::Text` should be preferred over
 /// `Token::RawText` when a piece of text can be represented by both. For
 /// instance, use `Token::Text` when tokenizing whitespaces or line-breaks, but

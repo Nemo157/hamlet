@@ -33,7 +33,7 @@ use escape::Escaped;
 /// let attr = hamlet::attr::Attribute::new("checked", "");
 /// assert_eq!(format!("{}", attr), "checked");
 /// ```
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Attribute<'a> {
     pub name: Cow<'a, str>,
     pub value: Cow<'a, str>,
@@ -85,7 +85,7 @@ impl<'a> fmt::Display for Attribute<'a> {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq)]
 /// A list of [`Attribute`](./struct.Attribute.html)s.
 ///
 /// This is stored as a plain list instead of a set as in most cases it will
@@ -241,5 +241,15 @@ impl<'a, 'b> Iterator for Iter<'b, 'a> {
     fn next(&mut self) -> Option<Self::Item> {
         self.index += 1;
         self.inner.get(self.index - 1)
+    }
+}
+
+impl<'a, 'b> PartialEq<AttributeList<'b>> for AttributeList<'a> {
+    fn eq(&self, other: &AttributeList<'b>) -> bool {
+        let mut left = self.0.iter().collect::<Vec<_>>();
+        let mut right = other.0.iter().collect::<Vec<_>>();
+        left.sort();
+        right.sort();
+        left == right
     }
 }
