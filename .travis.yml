@@ -22,11 +22,11 @@ script:
 before_deploy:
   - cargo package --verbose
   - cargo doc --release --verbose
-  - ./save_credentials.sh "$GITHUB_TOKEN" "$TRAVIS_REPO_SLUG"
+  - ./save_credentials.sh "$TRAVIS_REPO_SLUG"
 
 deploy:
   provider: script
-  script: ./deploy.sh "$TRAVIS_TAG" "$CRATES_IO_TOKEN"
+  script: ./deploy.sh "$TRAVIS_TAG"
   skip_cleanup: true
   on:
     tags: true
