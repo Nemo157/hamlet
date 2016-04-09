@@ -8,4 +8,3 @@ REPO_SLUG=${1:?'Must provide repo slug'}
 
 echo "machine github.com login $GITHUB_TOKEN password x-oauth-basic" >> ~/.netrc
 chmod 0600 ~/.netrc
-git remote set-url --push origin "https://github.com/$REPO_SLUG"
