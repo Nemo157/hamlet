@@ -81,15 +81,22 @@ impl<'a> Attribute<'a> {
             value: value.into(),
         }
     }
+
+    pub fn write_to<W: fmt::Write>(&self, w: &mut W) -> fmt::Result {
+        if self.value == "" {
+            w.write_str(self.name.as_ref())
+        } else {
+            try!(w.write_str(self.name.as_ref()));
+            try!(w.write_str("=\""));
+            try!(Escaped(self.value.as_ref()).write_to(w));
+            w.write_str("\"")
+        }
+    }
 }
 
 impl<'a> fmt::Display for Attribute<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.value == "" {
-            write!(f, "{}", self.name)
-        } else {
-            write!(f, "{}=\"{}\"", self.name.as_ref(), Escaped(&self.value))
-        }
+        self.write_to(f)
     }
 }
 

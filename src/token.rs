@@ -190,28 +190,48 @@ impl<'a> Token<'a> {
             self
         }
     }
+
+    pub fn write_to<W: fmt::Write>(&self, w: &mut W) -> fmt::Result {
+        match *self {
+            Token::StartTag { ref name, ref attrs, self_closing } => {
+                try!(w.write_str("<"));
+                try!(w.write_str(name));
+                for attr in attrs.iter() {
+                    try!(w.write_str(" "));
+                    try!(attr.write_to(w));
+                }
+                if self_closing {
+                    w.write_str(" />")
+                } else {
+                    w.write_str(">")
+                }
+            }
+            Token::EndTag { ref name } => {
+                try!(w.write_str("</"));
+                try!(w.write_str(name));
+                w.write_str(">")
+            }
+            Token::Text(ref text) => {
+                Escaped(text).write_to(w)
+            }
+            Token::RawText(ref text) => {
+                w.write_str(text)
+            }
+            Token::Comment(ref text) => {
+                try!(w.write_str("<!--"));
+                try!(w.write_str(text));
+                w.write_str("-->")
+            }
+            Token::DOCTYPE => {
+                w.write_str("<!DOCTYPE html>")
+            }
+        }
+    }
 }
 
 impl<'a> fmt::Display for Token<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Token::StartTag { ref name, ref attrs, self_closing } => {
-                try!(write!(f, "<{}", name));
-                for attr in attrs.iter() {
-                    try!(write!(f, " {}", attr));
-                }
-                if self_closing {
-                    write!(f, " />")
-                } else {
-                    write!(f, ">")
-                }
-            }
-            Token::EndTag { ref name } => write!(f, "</{}>", name),
-            Token::Text(ref text) => write!(f, "{}", Escaped(text)),
-            Token::RawText(ref text) => write!(f, "{}", text),
-            Token::Comment(ref text) => write!(f, "<!--{}-->", text),
-            Token::DOCTYPE => write!(f, "<!DOCTYPE html>"),
-        }
+        self.write_to(f)
     }
 }
 
