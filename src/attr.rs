@@ -86,9 +86,12 @@ impl<'a> Attribute<'a> {
 impl<'a> fmt::Display for Attribute<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.value == "" {
-            write!(f, "{}", self.name)
+            f.write_str(self.name.as_ref())
         } else {
-            write!(f, "{}=\"{}\"", self.name.as_ref(), Escaped(&self.value))
+            try!(f.write_str(self.name.as_ref()));
+            try!(f.write_str("=\""));
+            try!(Escaped(&self.value).fmt(f));
+            f.write_str("\"")
         }
     }
 }
