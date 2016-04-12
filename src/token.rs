@@ -196,21 +196,31 @@ impl<'a> fmt::Display for Token<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Token::StartTag { ref name, ref attrs, self_closing } => {
-                try!(write!(f, "<{}", name));
+                try!(f.write_str("<"));
+                try!(f.write_str(name.as_ref()));
                 for attr in attrs.iter() {
-                    try!(write!(f, " {}", attr));
+                    try!(f.write_str(" "));
+                    try!(attr.fmt(f));
                 }
                 if self_closing {
-                    write!(f, " />")
+                    f.write_str(" />")
                 } else {
-                    write!(f, ">")
+                    f.write_str(">")
                 }
             }
-            Token::EndTag { ref name } => write!(f, "</{}>", name),
-            Token::Text(ref text) => write!(f, "{}", Escaped(text)),
-            Token::RawText(ref text) => write!(f, "{}", text),
-            Token::Comment(ref text) => write!(f, "<!--{}-->", text),
-            Token::DOCTYPE => write!(f, "<!DOCTYPE html>"),
+            Token::EndTag { ref name } => {
+                try!(f.write_str("</"));
+                try!(f.write_str(name.as_ref()));
+                f.write_str(">")
+            }
+            Token::Text(ref text) => Escaped(text).fmt(f),
+            Token::RawText(ref text) => f.write_str(text.as_ref()),
+            Token::Comment(ref text) => {
+                try!(f.write_str("<!--"));
+                try!(f.write_str(text.as_ref()));
+                f.write_str("-->")
+            }
+            Token::DOCTYPE => f.write_str("<!DOCTYPE html>"),
         }
     }
 }
